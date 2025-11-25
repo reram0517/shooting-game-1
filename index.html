@@ -17,21 +17,21 @@ body {
 #gameContainer {
 	display: flex;
 	flex-direction: column;
-	align-items: center;
+	align-items: flex-start;
 	justify-content: flex-start;
 	height: 100vh;
 	padding-top: 5px;
 	padding-bottom: 150px;
+	padding-left: 15px;
 	box-sizing: border-box;
 	overflow: hidden;
 }
 canvas { 
 	background: #222; 
 	display: block; 
-	margin: 0 auto; 
 	border: 2px solid #fff;
 	touch-action: none;
-	max-width: 95vw;
+	max-width: calc(100vw - 120px);
 	max-height: calc(100vh - 250px);
 	width: auto;
 	height: auto;
@@ -146,8 +146,10 @@ h1 { font-size: 22px; margin: 5px; }
 }
 #controls .control-group:last-child {
 	position: fixed;
-	bottom: 90px;
+	top: 50%;
+	transform: translateY(-50%);
 	right: 15px;
+	flex-direction: column;
 }
 .control-group {
 	display: flex;
