@@ -20,10 +20,8 @@
 			align-items: center;
 			justify-content: flex-start;
 			height: 100vh;
-			padding-top: 5px;
-			padding-bottom: 150px;
+			padding-bottom: 120px;
 			box-sizing: border-box;
-			overflow: hidden;
 		}
 		canvas { 
 			background: #222; 
@@ -31,13 +29,10 @@
 			margin: 0 auto; 
 			border: 2px solid #fff;
 			touch-action: none;
-			max-width: 95vw;
-			max-height: calc(100vh - 250px);
-			width: auto;
-			height: auto;
+			max-width: 100%;
+			max-height: calc(100vh - 200px);
 		}
-		#score { font-size: 18px; margin: 3px; }
-		h1 { font-size: 22px; margin: 5px; }
+		#score { font-size: 20px; margin: 5px; }
 		#restartBtn {
 			position: relative;
 			z-index: 50;
@@ -99,20 +94,20 @@
 			left: 0;
 			right: 0;
 			justify-content: space-between;
-			padding: 0 15px;
+			padding: 0 20px;
 			z-index: 100;
 		}
 		.control-group {
 			display: flex;
-			gap: 12px;
+			gap: 15px;
 			background: rgba(0, 0, 0, 0.5);
-			padding: 8px;
-			border-radius: 12px;
+			padding: 10px;
+			border-radius: 15px;
 		}
 		#controls button {
-			width: 65px;
-			height: 65px;
-			font-size: 22px;
+			width: 70px;
+			height: 70px;
+			font-size: 24px;
 			background: rgba(0, 255, 255, 0.3);
 			border: 2px solid #0ff;
 			color: #fff;
@@ -126,19 +121,7 @@
 			#controls {
 				display: flex;
 			}
-		}
-		@media (max-height: 600px) {
-			#gameContainer {
-				padding-bottom: 120px;
-			}
-			canvas {
-				max-height: calc(100vh - 200px);
-			}
-			#controls button {
-				width: 55px;
-				height: 55px;
-				font-size: 20px;
-			}
+			h1 { font-size: 20px; margin: 5px; }
 		}
 	</style>
 </head>
