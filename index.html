@@ -38,7 +38,7 @@ canvas {
 }
 #score { font-size: 18px; margin: 3px; }
 h1 { font-size: 22px; margin: 5px; }
-#restartBtn {
+#restartBtn, #backToTitleBtn {
 	position: relative;
 	z-index: 50;
 	font-size: 20px;
@@ -50,8 +50,15 @@ h1 { font-size: 22px; margin: 5px; }
 	border-radius: 10px;
 	cursor: pointer;
 }
+#backToTitleBtn {
+	background: #999;
+	margin-left: 10px;
+}
 #restartBtn:active {
 	background: #0aa;
+}
+#backToTitleBtn:active {
+	background: #777;
 }
 #startScreen {
 	position: fixed;
@@ -178,7 +185,7 @@ h1 { font-size: 22px; margin: 5px; }
 <p>【目的】<br>敵を撃ち落としてスコアを稼ごう！</p>
 <p>【PC操作】<br>矢印キー: 移動 / スペース: 射撃 / R: リロード</p>
 <p>【スマホ操作】<br>画面下のボタンで操作</p>
-<p>【アイテム】<br>🟢 緑色: マガジン補充<br>🟡 黄色: 避けよう（減点）</p>
+<p>【アイテム】<br>🟢 緑色: マガジン補充<br>🟡 黄色: 避けよう（弾をあてると減点）</p>
 <p>【ヒント】<br>弾切れに注意！こまめにリロードしよう</p>
 </div>
 <div class="button-group">
@@ -192,6 +199,7 @@ h1 { font-size: 22px; margin: 5px; }
 <div id="score">スコア: 0</div>
 <canvas id="gameCanvas" width="480" height="640"></canvas>
 <button id="restartBtn" style="display:none;">もう一度スタート</button>
+<button id="backToTitleBtn" style="display:none;">タイトルに戻る</button>
 </div>
 <div id="controls">
 <div class="control-group">

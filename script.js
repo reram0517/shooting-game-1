@@ -1,6 +1,7 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 const restartBtn = document.getElementById('restartBtn');
+const backToTitleBtn = document.getElementById('backToTitleBtn');
 const controlsDiv = document.getElementById('controls');
 const startScreen = document.getElementById('startScreen');
 const startBtn = document.getElementById('startBtn');
@@ -24,6 +25,9 @@ let magazineItems = []; // マガジンアイテムの配列
 
 let player, bullets, enemies, score, gameOver, enemyTimer;
 let lastTime = 0; // デルタタイム計算用
+let playTime = 0; // プレイ時間（秒）
+let highScore = localStorage.getItem('highScore') ? parseInt(localStorage.getItem('highScore')) : 0; // 最高スコア
+let highTime = localStorage.getItem('highTime') ? parseFloat(localStorage.getItem('highTime')) : 0; // 最高生存時間
 
 let currentAmmo, isReloading, reloadTimer; 
 
@@ -128,8 +132,10 @@ function initGame() {
 	lastTime = performance.now(); // デルタタイム計算の開始時刻
 	remainingMagazines = MAX_MAGAZINES; // 残りマガジン数をリセット
 	magazineItems = []; // マガジンアイテム配列をリセット
+	playTime = 0; // プレイ時間をリセット
 
 	restartBtn.style.display = 'none';
+	backToTitleBtn.style.display = 'none';
 	if (controlsDiv) controlsDiv.style.display = ''; // 操作ボタンを表示
 	gameStarted = true;
 	if (startScreen) startScreen.style.display = 'none'; // スタート画面を非表示
@@ -194,6 +200,14 @@ restartBtn.addEventListener('click', () => {
 	initGame();
 });
 
+backToTitleBtn.addEventListener('click', () => {
+	startScreen.style.display = 'flex';
+	controlsDiv.style.display = 'none';
+	restartBtn.style.display = 'none';
+	backToTitleBtn.style.display = 'none';
+	gameStarted = false;
+});
+
 function spawnMagazineItem(x, y) {
 	magazineItems.push({ x, y, width: 30, height: 30, speed: 120 }); // ピクセル/秒
 }
@@ -217,6 +231,11 @@ function spawnBadItem() {
 }
 
 function update(deltaTime) {
+	// プレイ時間を更新
+	if (!gameOver) {
+		playTime += deltaTime;
+	}
+	
     //badItemsの移動（デルタタイム適用）
     badItems.forEach(item => item.y += item.speed * deltaTime);
     badItems = badItems.filter(item => item.y < canvas.height);
@@ -340,7 +359,18 @@ function update(deltaTime) {
 			player.y + player.height > enemy.y
 		) {
 			gameOver = true;
+			// 最高スコア更新
+			if (score > highScore) {
+				highScore = score;
+				localStorage.setItem('highScore', highScore);
+			}
+			// 最高生存時間更新
+			if (playTime > highTime) {
+				highTime = playTime;
+				localStorage.setItem('highTime', highTime);
+			}
 			restartBtn.style.display = 'inline-block';
+			backToTitleBtn.style.display = 'inline-block';
 			if (controlsDiv) controlsDiv.style.display = 'none'; // 操作ボタンを非表示
 		}
 	});
@@ -387,7 +417,15 @@ function draw() {
 	});
 
 	// スコア
-	document.getElementById('score').textContent = `スコア: ${score}`;
+	const minutes = Math.floor(playTime / 60);
+	const seconds = Math.floor(playTime % 60);
+	const timeText = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+	
+	const highMinutes = Math.floor(highTime / 60);
+	const highSeconds = Math.floor(highTime % 60);
+	const highTimeText = `${highMinutes}:${highSeconds.toString().padStart(2, '0')}`;
+	
+	document.getElementById('score').textContent = `スコア: ${score} | 時間: ${timeText} | 最高スコア: ${highScore} | 最高時間: ${highTimeText}`;
 
 	// 残弾表示（キャンバス上）
 	ctx.fillStyle = '#fff';
