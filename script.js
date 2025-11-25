@@ -15,7 +15,7 @@ let gameStarted = false;
 // キャンバスサイズを画面に合わせて調整
 function resizeCanvas() {
 	const maxWidth = window.innerWidth - 120; // 右側のボタンスペースを確保
-	const maxHeight = window.innerHeight - 250;
+	const maxHeight = window.innerHeight - 150; // 下の余白を少なく
 	
 	// 利用可能なスペースいっぱいに引き延ばす
 	canvas.width = Math.floor(maxWidth);
