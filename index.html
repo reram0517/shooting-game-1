@@ -36,7 +36,14 @@ canvas {
 	width: auto;
 	height: auto;
 }
-#score { font-size: 18px; margin: 3px; }
+#score { 
+	font-size: clamp(14px, 3.5vw, 18px); 
+	margin: 3px; 
+	line-height: 1.4;
+}
+#score div {
+	margin: 2px 0;
+}
 h1 { font-size: 22px; margin: 5px; }
 #restartBtn, #backToTitleBtn {
 	position: relative;
@@ -180,6 +187,10 @@ h1 { font-size: 22px; margin: 5px; }
 <body>
 <div id="startScreen">
 <h2>&#x1F680; シューティングゲーム &#x1F680;</h2>
+<div id="titleStats" style="margin: 10px 0; color: #fff; font-size: 16px;">
+<p>最高スコア: <span id="titleHighScore">0</span></p>
+<p>最高時間: <span id="titleHighTime">0:00</span></p>
+</div>
 <div class="instructions">
 <h3 style="color: #0ff;">ゲームルール</h3>
 <p>【目的】<br>敵を撃ち落としてスコアを稼ごう！</p>

@@ -29,6 +29,21 @@ let playTime = 0; // プレイ時間（秒）
 let highScore = localStorage.getItem('highScore') ? parseInt(localStorage.getItem('highScore')) : 0; // 最高スコア
 let highTime = localStorage.getItem('highTime') ? parseFloat(localStorage.getItem('highTime')) : 0; // 最高生存時間
 
+// タイトル画面の最高記録を更新する関数
+function updateTitleStats() {
+	const titleHighScore = document.getElementById('titleHighScore');
+	const titleHighTime = document.getElementById('titleHighTime');
+	if (titleHighScore) titleHighScore.textContent = highScore;
+	if (titleHighTime) {
+		const minutes = Math.floor(highTime / 60);
+		const seconds = Math.floor(highTime % 60);
+		titleHighTime.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+	}
+}
+
+// 初回読み込み時にタイトル画面の記録を表示
+updateTitleStats();
+
 let currentAmmo, isReloading, reloadTimer; 
 
 let keys = {};
@@ -206,6 +221,7 @@ backToTitleBtn.addEventListener('click', () => {
 	restartBtn.style.display = 'none';
 	backToTitleBtn.style.display = 'none';
 	gameStarted = false;
+	updateTitleStats(); // タイトル画面の記録を更新
 });
 
 function spawnMagazineItem(x, y) {
@@ -416,7 +432,7 @@ function draw() {
 		ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
 	});
 
-	// スコア
+	// スコア表示
 	const minutes = Math.floor(playTime / 60);
 	const seconds = Math.floor(playTime % 60);
 	const timeText = `${minutes}:${seconds.toString().padStart(2, '0')}`;
@@ -425,7 +441,11 @@ function draw() {
 	const highSeconds = Math.floor(highTime % 60);
 	const highTimeText = `${highMinutes}:${highSeconds.toString().padStart(2, '0')}`;
 	
-	document.getElementById('score').textContent = `スコア: ${score} | 時間: ${timeText} | 最高スコア: ${highScore} | 最高時間: ${highTimeText}`;
+	const scoreDiv = document.getElementById('score');
+	scoreDiv.innerHTML = `
+		<div>スコア: ${score} | 最高スコア: ${highScore}</div>
+		<div>時間: ${timeText} | 最高時間: ${highTimeText}</div>
+	`;
 
 	// 残弾表示（キャンバス上）
 	ctx.fillStyle = '#fff';
