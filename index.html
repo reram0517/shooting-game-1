@@ -31,10 +31,6 @@ canvas {
 	display: block; 
 	border: 2px solid #fff;
 	touch-action: none;
-	max-width: calc(100vw - 120px);
-	max-height: calc(100vh - 250px);
-	width: auto;
-	height: auto;
 }
 #score { 
 	font-size: clamp(14px, 3.5vw, 18px); 
@@ -215,7 +211,7 @@ h1 { font-size: 22px; margin: 5px; }
 <div id="gameContainer">
 <h1>アーケードシューティングゲーム</h1>
 <div id="score">スコア: 0</div>
-<canvas id="gameCanvas" width="480" height="640"></canvas>
+<canvas id="gameCanvas"></canvas>
 <button id="restartBtn" style="display:none;">もう一度スタート</button>
 <button id="backToTitleBtn" style="display:none;">タイトルに戻る</button>
 </div>

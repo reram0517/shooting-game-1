@@ -12,6 +12,38 @@ const buttonGroup = document.querySelector('.button-group');
 
 let gameStarted = false;
 
+// キャンバスサイズを画面に合わせて調整
+function resizeCanvas() {
+	const maxWidth = window.innerWidth - 120; // 右側のボタンスペースを確保
+	const maxHeight = window.innerHeight - 250;
+	const aspectRatio = 480 / 640; // 元の比率 (width / height)
+	
+	let newWidth, newHeight;
+	
+	if (maxWidth / maxHeight > aspectRatio) {
+		// 高さ基準
+		newHeight = maxHeight;
+		newWidth = newHeight * aspectRatio;
+	} else {
+		// 幅基準
+		newWidth = maxWidth;
+		newHeight = newWidth / aspectRatio;
+	}
+	
+	canvas.width = Math.floor(newWidth);
+	canvas.height = Math.floor(newHeight);
+	
+	// プレイヤーの位置を画面サイズに合わせて調整
+	if (player) {
+		player.x = Math.min(player.x, canvas.width - player.width);
+		player.y = Math.min(player.y, canvas.height - player.height);
+	}
+}
+
+// 初期サイズ設定とリサイズイベント
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
 const BULLET_W = 20; //弾の幅
 const BULLET_H = 16; //弾の高さ
 const BULLET_SPEED = 720; //弾の速度（ピクセル/秒）
