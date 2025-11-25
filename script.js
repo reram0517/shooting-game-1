@@ -16,27 +16,17 @@ let gameStarted = false;
 function resizeCanvas() {
 	const maxWidth = window.innerWidth - 120; // 右側のボタンスペースを確保
 	const maxHeight = window.innerHeight - 250;
-	const aspectRatio = 480 / 640; // 元の比率 (width / height)
 	
-	let newWidth, newHeight;
-	
-	if (maxWidth / maxHeight > aspectRatio) {
-		// 高さ基準
-		newHeight = maxHeight;
-		newWidth = newHeight * aspectRatio;
-	} else {
-		// 幅基準
-		newWidth = maxWidth;
-		newHeight = newWidth / aspectRatio;
-	}
-	
-	canvas.width = Math.floor(newWidth);
-	canvas.height = Math.floor(newHeight);
+	// 利用可能なスペースいっぱいに引き延ばす
+	canvas.width = Math.floor(maxWidth);
+	canvas.height = Math.floor(maxHeight);
 	
 	// プレイヤーの位置を画面サイズに合わせて調整
 	if (player) {
-		player.x = Math.min(player.x, canvas.width - player.width);
-		player.y = Math.min(player.y, canvas.height - player.height);
+		const xRatio = canvas.width / 480; // 元の幅に対する比率
+		const yRatio = canvas.height / 640; // 元の高さに対する比率
+		player.x = Math.min(player.x * xRatio, canvas.width - player.width);
+		player.y = Math.min(player.y * yRatio, canvas.height - player.height);
 	}
 }
 
