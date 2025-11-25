@@ -1,156 +1,173 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ja">
 <head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-	<title>アーケードシューティングゲーム</title>
-	<style>
-		body { 
-			text-align: center; 
-			background: #111; 
-			color: #fff; 
-			margin: 0;
-			padding: 0;
-			overflow: hidden;
-			touch-action: none;
-		}
-		#gameContainer {
-			display: flex;
-			flex-direction: column;
-			align-items: center;
-			justify-content: flex-start;
-			height: 100vh;
-			padding-bottom: 120px;
-			box-sizing: border-box;
-		}
-		canvas { 
-			background: #222; 
-			display: block; 
-			margin: 0 auto; 
-			border: 2px solid #fff;
-			touch-action: none;
-			max-width: 100%;
-			max-height: calc(100vh - 200px);
-		}
-		#score { font-size: 20px; margin: 5px; }
-		#restartBtn {
-			position: relative;
-			z-index: 50;
-			font-size: 20px;
-			margin-top: 10px;
-			padding: 15px 30px;
-			background: #0ff;
-			color: #000;
-			border: none;
-			border-radius: 10px;
-			cursor: pointer;
-		}
-		#restartBtn:active {
-			background: #0aa;
-		}
-		#startScreen {
-			position: fixed;
-			top: 0;
-			left: 0;
-			width: 100%;
-			height: 100%;
-			background: rgba(0, 0, 0, 0.95);
-			display: flex;
-			flex-direction: column;
-			align-items: center;
-			justify-content: center;
-			z-index: 200;
-		}
-		#startScreen h2 {
-			font-size: clamp(20px, 7vw, 36px);
-			margin-bottom: 20px;
-			color: #0ff;
-			white-space: nowrap;
-		}
-		#startScreen .instructions {
-			font-size: 16px;
-			margin-bottom: 30px;
-			text-align: center;
-			line-height: 1.8;
-			max-width: 400px;
-			padding: 0 20px;
-		}
-		#startBtn {
-			font-size: 24px;
-			padding: 20px 50px;
-			background: #0ff;
-			color: #000;
-			border: none;
-			border-radius: 10px;
-			cursor: pointer;
-			font-weight: bold;
-		}
-		#startBtn:active {
-			background: #0aa;
-		}
-		#controls {
-			display: none;
-			position: fixed;
-			bottom: 10px;
-			left: 0;
-			right: 0;
-			justify-content: space-between;
-			padding: 0 20px;
-			z-index: 100;
-		}
-		.control-group {
-			display: flex;
-			gap: 15px;
-			background: rgba(0, 0, 0, 0.5);
-			padding: 10px;
-			border-radius: 15px;
-		}
-		#controls button {
-			width: 70px;
-			height: 70px;
-			font-size: 24px;
-			background: rgba(0, 255, 255, 0.3);
-			border: 2px solid #0ff;
-			color: #fff;
-			border-radius: 10px;
-			touch-action: manipulation;
-		}
-		#controls button:active {
-			background: rgba(0, 255, 255, 0.6);
-		}
-		@media (max-width: 768px) {
-			#controls {
-				display: flex;
-			}
-			h1 { font-size: 20px; margin: 5px; }
-		}
-	</style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>アーケードシューティングゲーム</title>
+<style>
+body { 
+	text-align: center; 
+	background: #111; 
+	color: #fff; 
+	margin: 0;
+	padding: 0;
+	overflow: hidden;
+	touch-action: none;
+}
+#gameContainer {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: flex-start;
+	height: 100vh;
+	padding-top: 5px;
+	padding-bottom: 150px;
+	box-sizing: border-box;
+	overflow: hidden;
+}
+canvas { 
+	background: #222; 
+	display: block; 
+	margin: 0 auto; 
+	border: 2px solid #fff;
+	touch-action: none;
+	max-width: 95vw;
+	max-height: calc(100vh - 250px);
+	width: auto;
+	height: auto;
+}
+#score { font-size: 18px; margin: 3px; }
+h1 { font-size: 22px; margin: 5px; }
+#restartBtn {
+	position: relative;
+	z-index: 50;
+	font-size: 20px;
+	margin-top: 10px;
+	padding: 15px 30px;
+	background: #0ff;
+	color: #000;
+	border: none;
+	border-radius: 10px;
+	cursor: pointer;
+}
+#restartBtn:active {
+	background: #0aa;
+}
+#startScreen {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: rgba(0, 0, 0, 0.95);
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	z-index: 200;
+}
+#startScreen h2 {
+	font-size: clamp(20px, 7vw, 36px);
+	margin-bottom: 20px;
+	color: #0ff;
+	white-space: nowrap;
+}
+#startScreen .instructions {
+	font-size: 16px;
+	margin-bottom: 30px;
+	text-align: center;
+	line-height: 1.8;
+	max-width: 400px;
+	padding: 0 20px;
+}
+#startBtn {
+	font-size: 24px;
+	padding: 20px 50px;
+	background: #0ff;
+	color: #000;
+	border: none;
+	border-radius: 10px;
+	cursor: pointer;
+	font-weight: bold;
+}
+#startBtn:active {
+	background: #0aa;
+}
+#controls {
+	display: none;
+	position: fixed;
+	bottom: 10px;
+	left: 0;
+	right: 0;
+	justify-content: space-between;
+	padding: 0 15px;
+	z-index: 100;
+}
+.control-group {
+	display: flex;
+	gap: 12px;
+	background: rgba(0, 0, 0, 0.5);
+	padding: 8px;
+	border-radius: 12px;
+}
+#controls button {
+	width: 65px;
+	height: 65px;
+	font-size: 22px;
+	background: rgba(0, 255, 255, 0.3);
+	border: 2px solid #0ff;
+	color: #fff;
+	border-radius: 10px;
+	touch-action: manipulation;
+}
+#controls button:active {
+	background: rgba(0, 255, 255, 0.6);
+}
+@media (max-width: 768px) {
+	#controls {
+		display: flex;
+	}
+}
+@media (max-height: 600px) {
+	#gameContainer {
+		padding-bottom: 120px;
+	}
+	canvas {
+		max-height: calc(100vh - 200px);
+	}
+	#controls button {
+		width: 55px;
+		height: 55px;
+		font-size: 20px;
+	}
+}
+</style>
 </head>
 <body>
-	<div id="startScreen">
-		<h2>🚀 シューティングゲーム 🚀</h2>
-		<div class="instructions">
-			<p>【PC操作】<br>矢印キー: 移動 / スペース: 射撃 / R: リロード</p>
-			<p>【スマホ操作】<br>画面下のボタンで操作</p>
-		</div>
-		<button id="startBtn">ゲームスタート</button>
-	</div>
-	<div id="gameContainer">
-		<h1>アーケードシューティングゲーム</h1>
-		<div id="score">スコア: 0</div>
-		<canvas id="gameCanvas" width="480" height="640"></canvas>
-		<button id="restartBtn" style="display:none;">もう一度スタート</button>
-	</div>
-	<div id="controls">
-		<div class="control-group">
-			<button id="leftBtn">◀</button>
-			<button id="rightBtn">▶</button>
-		</div>
-		<div class="control-group">
-			<button id="shootBtn">🔫</button>
-			<button id="reloadBtn">🔄</button>
-		</div>
-	</div>
-	<script src="script.js"></script>
+<div id="startScreen">
+<h2>&#x1F680; シューティングゲーム &#x1F680;</h2>
+<div class="instructions">
+<p>【PC操作】<br>矢印キー: 移動 / スペース: 射撃 / R: リロード</p>
+<p>【スマホ操作】<br>画面下のボタンで操作</p>
+</div>
+<button id="startBtn">ゲームスタート</button>
+</div>
+<div id="gameContainer">
+<h1>アーケードシューティングゲーム</h1>
+<div id="score">スコア: 0</div>
+<canvas id="gameCanvas" width="480" height="640"></canvas>
+<button id="restartBtn" style="display:none;">もう一度スタート</button>
+</div>
+<div id="controls">
+<div class="control-group">
+<button id="leftBtn">&#x25C0;</button>
+<button id="rightBtn">&#x25B6;</button>
+</div>
+<div class="control-group">
+<button id="shootBtn">&#x1F52B;</button>
+<button id="reloadBtn">&#x1F504;</button>
+</div>
+</div>
+<script src="script.js"></script>
 </body>
 </html>
