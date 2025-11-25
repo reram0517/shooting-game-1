@@ -2,6 +2,10 @@ const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 const restartBtn = document.getElementById('restartBtn');
 const controlsDiv = document.getElementById('controls');
+const startScreen = document.getElementById('startScreen');
+const startBtn = document.getElementById('startBtn');
+
+let gameStarted = false;
 
 const BULLET_W = 20; //弾の幅
 const BULLET_H = 16; //弾の高さ
@@ -123,9 +127,18 @@ function initGame() {
 
 	restartBtn.style.display = 'none';
 	if (controlsDiv) controlsDiv.style.display = ''; // 操作ボタンを表示
+	gameStarted = true;
+	if (startScreen) startScreen.style.display = 'none'; // スタート画面を非表示
 }
 
-initGame();
+// スタートボタンのイベント
+if (startBtn) {
+	startBtn.addEventListener('click', () => {
+		initGame();
+		lastTime = performance.now();
+		gameLoop(lastTime);
+	});
+}
 
 document.addEventListener('keydown', (e) => {
     keys[e.key] = true;
@@ -398,5 +411,4 @@ function gameLoop(currentTime) {
 	requestAnimationFrame(gameLoop);
 }
 
-lastTime = performance.now();
-gameLoop(lastTime);
+// ゲームループは初期化しない（スタートボタンで開始）

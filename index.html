@@ -48,6 +48,45 @@
 		#restartBtn:active {
 			background: #0aa;
 		}
+		#startScreen {
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			background: rgba(0, 0, 0, 0.95);
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			z-index: 200;
+		}
+		#startScreen h2 {
+			font-size: 36px;
+			margin-bottom: 20px;
+			color: #0ff;
+		}
+		#startScreen .instructions {
+			font-size: 16px;
+			margin-bottom: 30px;
+			text-align: center;
+			line-height: 1.8;
+			max-width: 400px;
+			padding: 0 20px;
+		}
+		#startBtn {
+			font-size: 24px;
+			padding: 20px 50px;
+			background: #0ff;
+			color: #000;
+			border: none;
+			border-radius: 10px;
+			cursor: pointer;
+			font-weight: bold;
+		}
+		#startBtn:active {
+			background: #0aa;
+		}
 		#controls {
 			display: none;
 			position: fixed;
@@ -87,6 +126,14 @@
 	</style>
 </head>
 <body>
+	<div id="startScreen">
+		<h2>🚀 シューティングゲーム 🚀</h2>
+		<div class="instructions">
+			<p>【PC操作】<br>矢印キー: 移動 / スペース: 射撃 / R: リロード</p>
+			<p>【スマホ操作】<br>画面下のボタンで操作</p>
+		</div>
+		<button id="startBtn">ゲームスタート</button>
+	</div>
 	<div id="gameContainer">
 		<h1>アーケードシューティングゲーム</h1>
 		<div id="score">スコア: 0</div>
