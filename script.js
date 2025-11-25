@@ -373,6 +373,25 @@ function draw() {
 	const ammoText = isReloading ? 'リロード中...' : `弾: ${currentAmmo} / ${MAGAZINE_SIZE} 残りマガジン: ${remainingMagazines}`;
 	ctx.fillText(ammoText, 10, 30);
 
+	// 弾薬警告表示
+	if (!gameOver && !isReloading) {
+		ctx.textAlign = 'center';
+		if (currentAmmo <= 3 && currentAmmo > 0) {
+			ctx.fillStyle = '#ff0';
+			ctx.font = 'bold 24px sans-serif';
+			ctx.fillText('⚠ 弾薬残り少ない！', canvas.width / 2, 60);
+		} else if (currentAmmo === 0 && remainingMagazines > 0) {
+			ctx.fillStyle = '#f00';
+			ctx.font = 'bold 28px sans-serif';
+			ctx.fillText('⚠ リロードしてください！', canvas.width / 2, 60);
+		} else if (remainingMagazines === 0 && currentAmmo <= 5) {
+			ctx.fillStyle = '#f00';
+			ctx.font = 'bold 24px sans-serif';
+			ctx.fillText('⚠ マガジン切れ！', canvas.width / 2, 60);
+		}
+		ctx.textAlign = 'left';
+	}
+
 	// ゲームオーバー
 	if (gameOver) {
 		ctx.fillStyle = '#fff';
