@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+	<title>アーケードシューティングゲーム</title>
+	<style>
+		body { 
+			text-align: center; 
+			background: #111; 
+			color: #fff; 
+			margin: 0;
+			padding: 0;
+			overflow: hidden;
+			touch-action: none;
+		}
+		#gameContainer {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: flex-start;
+			height: 100vh;
+			padding-bottom: 120px;
+			box-sizing: border-box;
+		}
+		canvas { 
+			background: #222; 
+			display: block; 
+			margin: 0 auto; 
+			border: 2px solid #fff;
+			touch-action: none;
+			max-width: 100%;
+			max-height: calc(100vh - 200px);
+		}
+		#score { font-size: 20px; margin: 5px; }
+		#restartBtn {
+			position: relative;
+			z-index: 50;
+			font-size: 20px;
+			margin-top: 10px;
+			padding: 15px 30px;
+			background: #0ff;
+			color: #000;
+			border: none;
+			border-radius: 10px;
+			cursor: pointer;
+		}
+		#restartBtn:active {
+			background: #0aa;
+		}
+		#controls {
+			display: none;
+			position: fixed;
+			bottom: 10px;
+			left: 0;
+			right: 0;
+			justify-content: space-between;
+			padding: 0 20px;
+			z-index: 100;
+		}
+		.control-group {
+			display: flex;
+			gap: 15px;
+			background: rgba(0, 0, 0, 0.5);
+			padding: 10px;
+			border-radius: 15px;
+		}
+		#controls button {
+			width: 70px;
+			height: 70px;
+			font-size: 24px;
+			background: rgba(0, 255, 255, 0.3);
+			border: 2px solid #0ff;
+			color: #fff;
+			border-radius: 10px;
+			touch-action: manipulation;
+		}
+		#controls button:active {
+			background: rgba(0, 255, 255, 0.6);
+		}
+		@media (max-width: 768px) {
+			#controls {
+				display: flex;
+			}
+			h1 { font-size: 20px; margin: 5px; }
+		}
+	</style>
+</head>
+<body>
+	<div id="gameContainer">
+		<h1>アーケードシューティングゲーム</h1>
+		<div id="score">スコア: 0</div>
+		<canvas id="gameCanvas" width="480" height="640"></canvas>
+		<button id="restartBtn" style="display:none;">もう一度スタート</button>
+	</div>
+	<div id="controls">
+		<div class="control-group">
+			<button id="leftBtn">◀</button>
+			<button id="rightBtn">▶</button>
+		</div>
+		<div class="control-group">
+			<button id="shootBtn">🔫</button>
+			<button id="reloadBtn">🔄</button>
+		</div>
+	</div>
+	<script src="script.js"></script>
+</body>
+</html>
