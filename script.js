@@ -4,6 +4,10 @@ const restartBtn = document.getElementById('restartBtn');
 const controlsDiv = document.getElementById('controls');
 const startScreen = document.getElementById('startScreen');
 const startBtn = document.getElementById('startBtn');
+const rulesBtn = document.getElementById('rulesBtn');
+const backBtn = document.getElementById('backBtn');
+const instructions = document.querySelector('.instructions');
+const buttonGroup = document.querySelector('.button-group');
 
 let gameStarted = false;
 
@@ -12,7 +16,7 @@ const BULLET_H = 16; //弾の高さ
 const BULLET_SPEED = 720; //弾の速度（ピクセル/秒）
 
 const MAX_MAGAZINES = 5; // 最大マガジン数
-const MAGAZINE_SIZE = 10; // マガジンの弾数
+const MAGAZINE_SIZE = 20; // マガジンの弾数
 const RELOAD_TIME = 2000; // リロード時間（ミリ秒）
 
 let remainingMagazines = MAX_MAGAZINES; // 残りマガジン数
@@ -137,6 +141,24 @@ if (startBtn) {
 		initGame();
 		lastTime = performance.now();
 		gameLoop(lastTime);
+	});
+}
+
+// ゲームルールボタンのイベント
+if (rulesBtn) {
+	rulesBtn.addEventListener('click', () => {
+		if (instructions) instructions.style.display = 'block';
+		if (buttonGroup) buttonGroup.style.display = 'none';
+		if (backBtn) backBtn.style.display = 'block';
+	});
+}
+
+// 戻るボタンのイベント
+if (backBtn) {
+	backBtn.addEventListener('click', () => {
+		if (instructions) instructions.style.display = 'none';
+		if (buttonGroup) buttonGroup.style.display = 'flex';
+		if (backBtn) backBtn.style.display = 'none';
 	});
 }
 

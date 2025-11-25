@@ -79,8 +79,15 @@ h1 { font-size: 22px; margin: 5px; }
 	line-height: 1.8;
 	max-width: 400px;
 	padding: 0 20px;
+	display: none;
 }
-#startBtn {
+.button-group {
+	display: flex;
+	gap: 20px;
+	flex-wrap: wrap;
+	justify-content: center;
+}
+#startBtn, #rulesBtn {
 	font-size: 24px;
 	padding: 20px 50px;
 	background: #0ff;
@@ -90,8 +97,28 @@ h1 { font-size: 22px; margin: 5px; }
 	cursor: pointer;
 	font-weight: bold;
 }
+#rulesBtn {
+	background: #0a0;
+}
 #startBtn:active {
 	background: #0aa;
+}
+#rulesBtn:active {
+	background: #080;
+}
+#backBtn {
+	font-size: 18px;
+	padding: 12px 30px;
+	background: #666;
+	color: #fff;
+	border: none;
+	border-radius: 10px;
+	cursor: pointer;
+	margin-top: 20px;
+	display: none;
+}
+#backBtn:active {
+	background: #444;
 }
 #controls {
 	display: none;
@@ -147,10 +174,18 @@ h1 { font-size: 22px; margin: 5px; }
 <div id="startScreen">
 <h2>&#x1F680; シューティングゲーム &#x1F680;</h2>
 <div class="instructions">
+<h3 style="color: #0ff;">ゲームルール</h3>
+<p>【目的】<br>敵を撃ち落としてスコアを稼ごう！</p>
 <p>【PC操作】<br>矢印キー: 移動 / スペース: 射撃 / R: リロード</p>
 <p>【スマホ操作】<br>画面下のボタンで操作</p>
+<p>【アイテム】<br>🟢 緑色: マガジン補充<br>🟡 黄色: 避けよう（減点）</p>
+<p>【ヒント】<br>弾切れに注意！こまめにリロードしよう</p>
 </div>
+<div class="button-group">
 <button id="startBtn">ゲームスタート</button>
+<button id="rulesBtn">ゲームルール</button>
+</div>
+<button id="backBtn">戻る</button>
 </div>
 <div id="gameContainer">
 <h1>アーケードシューティングゲーム</h1>
