@@ -861,15 +861,18 @@ function gameLoop(currentTime) {
 	lastTime = currentTime;
 
 	// デルタタイムが異常値の場合はスキップ（初回やタブ切替後など）
-	if (deltaTime > 0.1) {
+	// 0.05秒（20FPS）以上かかった場合は制限して滑らかさを保つ
+	const clampedDeltaTime = Math.min(deltaTime, 0.05);
+	
+	if (deltaTime > 0.2) {
 		requestAnimationFrame(gameLoop);
 		return;
 	}
 
-	update(deltaTime);
+	update(clampedDeltaTime);
 	draw();
 	if (!gameOver) {
-		soldierTimer += deltaTime * 1000; // ミリ秒単位で加算
+		soldierTimer += clampedDeltaTime * 1000; // ミリ秒単位で加算
 		const settings = difficultySettings[currentDifficulty];
 		
 		// スコアが100上がるごとに特殊アイテムをスポーン
@@ -882,7 +885,7 @@ function gameLoop(currentTime) {
 			spawnSoldier();
 			soldierTimer -= settings.enemySpawnInterval;
 		}
-        if (soldierTimer % settings.badItemSpawnInterval < deltaTime * 1000) spawnBomberSoldier(); // 難易度に応じた間隔で爆弾兵をスポーン
+        if (soldierTimer % settings.badItemSpawnInterval < clampedDeltaTime * 1000) spawnBomberSoldier(); // 難易度に応じた間隔で爆弾兵をスポーン
 	}
 	requestAnimationFrame(gameLoop);
 }
