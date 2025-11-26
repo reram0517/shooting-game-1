@@ -32,12 +32,17 @@ canvas {
 	touch-action: none;
 }
 #score { 
-	font-size: clamp(14px, 3.5vw, 18px); 
-	margin: 3px; 
-	line-height: 1.4;
+	font-size: clamp(16px, 4vw, 22px); 
+	margin: 5px; 
+	line-height: 1.5;
 }
 #score div {
-	margin: 2px 0;
+	margin: 3px 0;
+}
+#score .current-score {
+	font-size: clamp(20px, 5vw, 28px);
+	font-weight: bold;
+	color: #0ff;
 }
 h1 { font-size: 22px; margin: 5px; }
 #restartBtn, #backToTitleBtn {
@@ -213,7 +218,7 @@ h1 { font-size: 22px; margin: 5px; }
 <p>【敵】<br>赤色の四角: 一般兵（10点）
 	<br>黄色の四角: 爆弾兵（－20点）
 	<br>撃つと爆発
-	<br>敵にあたると<span style="color: red !important; font-weight: bold;">ゲームオーバー</span>
+	<br>敵にあたると<span style="color: #f00; font-weight: bold;">ゲームオーバー</span>
 </p>
 <p>【PC操作】<br>矢印キー: 移動 / スペース: 射撃 / R: リロード</p>
 <p>【スマホ操作】<br>画面下のボタンで操作</p>
