@@ -5,29 +5,70 @@ const backToTitleBtn = document.getElementById('backToTitleBtn');
 const controlsDiv = document.getElementById('controls');
 const startScreen = document.getElementById('startScreen');
 const startBtn = document.getElementById('startBtn');
+const playBtn = document.getElementById('playBtn');
 const rulesBtn = document.getElementById('rulesBtn');
 const backBtn = document.getElementById('backBtn');
 const instructions = document.querySelector('.instructions');
-const buttonGroup = document.querySelector('.button-group');
+const mainMenu = document.getElementById('mainMenu');
+const difficultySelect = document.getElementById('difficultySelect');
+const backToMenuBtn = document.getElementById('backToMenuBtn');
+const difficultyBtns = document.querySelectorAll('.difficultyBtn');
 
 console.log('Script loaded');
 console.log('startBtn:', startBtn);
+console.log('playBtn:', playBtn);
 console.log('rulesBtn:', rulesBtn);
 console.log('backBtn:', backBtn);
 
 let gameStarted = false;
+let currentDifficulty = 'normal'; // デフォルトは普通
+
+// 難易度設定
+const difficultySettings = {
+	easy: {
+		enemySpeed: 180,
+		enemySpawnInterval: 1000,
+		badItemSpeed: 140,
+		badItemSpawnInterval: 2000
+	},
+	normal: {
+		enemySpeed: 240,
+		enemySpawnInterval: 1000,
+		badItemSpeed: 180,
+		badItemSpawnInterval: 2000
+	},
+	hard: {
+		enemySpeed: 320,
+		enemySpawnInterval: 700,
+		badItemSpeed: 240,
+		badItemSpawnInterval: 1500
+	}
+};
 
 // キャンバスサイズを画面に合わせて調整
 function resizeCanvas() {
 	const oldWidth = canvas.width;
 	const oldHeight = canvas.height;
 	
-	const maxWidth = window.innerWidth - 120; // 右側のボタンスペースを確保
-	const maxHeight = window.innerHeight - 250; // ボタンのスペースを十分に確保（150→250に変更）
+	// 左側に10pxの余白、右側にボタンスペースを確保
+	const leftMargin = 10;
+	const rightButtonSpace = 105;
+	const maxWidth = window.innerWidth - leftMargin - rightButtonSpace;
+	
+	// 下部のスペースを動的に計算
+	// コントロール部分の高さ(約130px) + ボタン2つ分の高さ(約120px) + マージン(約50px)
+	const controlsHeight = 130;
+	const buttonsHeight = 120;
+	const extraMargin = 50;
+	const bottomSpace = controlsHeight + buttonsHeight + extraMargin;
+	
+	// 画面の高さに応じて調整（小さい画面では最低限のスペースを確保）
+	const minBottomSpace = 250;
+	const maxHeight = window.innerHeight - Math.max(bottomSpace, minBottomSpace);
 	
 	// 利用可能なスペースいっぱいに引き延ばす
-	canvas.width = Math.floor(maxWidth);
-	canvas.height = Math.floor(maxHeight);
+	canvas.width = Math.floor(Math.max(maxWidth, 200)); // 最小幅200pxを確保
+	canvas.height = Math.floor(Math.max(maxHeight, 200)); // 最小高さ200pxを確保
 	
 	// プレイヤーの位置を画面サイズに合わせて調整（ゲーム開始後のみ）
 	if (player && gameStarted && oldWidth > 0 && oldHeight > 0) {
@@ -53,8 +94,11 @@ function updateControlsPosition() {
 
 // 初期サイズ設定とリサイズイベント
 // resizeCanvas(); // 初回実行を削除（playerがnullのため）
-canvas.width = Math.floor(window.innerWidth - 120);
-canvas.height = Math.floor(window.innerHeight - 250); // ボタンのスペースを確保
+const initialBottomSpace = Math.max(300, 130 + 120 + 50);
+const initialLeftMargin = 10; // 左側の余白
+const initialRightSpace = 105; // 右側のボタンスペース
+canvas.width = Math.floor(Math.max(window.innerWidth - initialLeftMargin - initialRightSpace, 200));
+canvas.height = Math.floor(Math.max(window.innerHeight - initialBottomSpace, 200));
 updateControlsPosition(); // ボタン位置を初期設定
 window.addEventListener('resize', resizeCanvas);
 
@@ -171,7 +215,8 @@ canvas.addEventListener('touchend', (e) => {
 let bomberSoldiers = []; // 爆弾兵
 function spawnBomberSoldier() { // 爆弾兵をスポーン
     const x = Math.random() * (canvas.width - 40);
-    bomberSoldiers.push({ x, y: -40, width: 40, height: 40, speed: 180 }); // 速度を秒速に変更（ピクセル/秒）
+    const settings = difficultySettings[currentDifficulty];
+    bomberSoldiers.push({ x, y: -40, width: 40, height: 40, speed: settings.badItemSpeed });
 }
 
 function isOverlap(x, y, arr) {
@@ -218,16 +263,41 @@ function initGame() {
 	if (startScreen) startScreen.style.display = 'none'; // スタート画面を非表示
 }
 
-// スタートボタンのイベント
+// スタートボタン（ゲーム選択）のイベント
 let startBtnClicked = false;
 
+function handleShowDifficultySelect(e) {
+	if (startBtnClicked) return;
+	startBtnClicked = true;
+	
+	if (e) {
+		e.preventDefault();
+		e.stopPropagation();
+	}
+	
+	if (mainMenu) mainMenu.style.display = 'none';
+	if (difficultySelect) difficultySelect.style.display = 'block';
+	
+	setTimeout(() => { startBtnClicked = false; }, 500);
+}
+
+if (startBtn) {
+	console.log('startBtn found:', startBtn);
+	startBtn.addEventListener('click', handleShowDifficultySelect);
+	startBtn.addEventListener('touchend', handleShowDifficultySelect);
+} else {
+	console.error('startBtn not found!');
+}
+
+// プレイボタン（ゲーム開始）のイベント
+let playBtnClicked = false;
+
 function handleStartGame(e) {
-	console.log('handleStartGame called', e);
-	if (startBtnClicked) {
+	if (playBtnClicked) {
 		console.log('Already clicked, returning');
 		return;
 	}
-	startBtnClicked = true;
+	playBtnClicked = true;
 	
 	if (e) {
 		e.preventDefault();
@@ -240,20 +310,30 @@ function handleStartGame(e) {
 	console.log('Starting game loop...');
 	requestAnimationFrame(gameLoop);
 	
-	setTimeout(() => { startBtnClicked = false; }, 500);
+	setTimeout(() => { playBtnClicked = false; }, 500);
 }
 
-if (startBtn) {
-	console.log('startBtn found:', startBtn);
-	startBtn.onclick = handleStartGame;
-	startBtn.addEventListener('click', handleStartGame);
-	startBtn.addEventListener('touchend', handleStartGame);
-	startBtn.addEventListener('touchstart', (e) => {
-		console.log('startBtn touchstart');
-	});
+if (playBtn) {
+	console.log('playBtn found:', playBtn);
+	playBtn.addEventListener('click', handleStartGame);
+	playBtn.addEventListener('touchend', handleStartGame);
 } else {
-	console.error('startBtn not found!');
+	console.error('playBtn not found!');
 }
+
+// 難易度選択ボタンのイベント
+difficultyBtns.forEach(btn => {
+	btn.addEventListener('click', (e) => {
+		e.preventDefault();
+		const difficulty = btn.getAttribute('data-difficulty');
+		currentDifficulty = difficulty;
+		
+		// すべてのボタンの枠線を外す
+		difficultyBtns.forEach(b => b.style.border = 'none');
+		// 選択されたボタンに枠線を追加
+		btn.style.border = '3px solid #fff';
+	});
+});
 
 // ゲームルールボタンのイベント
 let rulesBtnClicked = false;
@@ -268,8 +348,9 @@ function handleShowRules(e) {
 	}
 	
 	if (instructions) instructions.style.display = 'block';
-	if (buttonGroup) buttonGroup.style.display = 'none';
+	if (mainMenu) mainMenu.style.display = 'none';
 	if (backBtn) backBtn.style.display = 'block';
+	if (difficultySelect) difficultySelect.style.display = 'none';
 	
 	setTimeout(() => { rulesBtnClicked = false; }, 500);
 }
@@ -292,8 +373,9 @@ function handleBackToTitle(e) {
 	}
 	
 	if (instructions) instructions.style.display = 'none';
-	if (buttonGroup) buttonGroup.style.display = 'flex';
+	if (mainMenu) mainMenu.style.display = 'block';
 	if (backBtn) backBtn.style.display = 'none';
+	if (difficultySelect) difficultySelect.style.display = 'none';
 	
 	setTimeout(() => { backBtnClicked = false; }, 500);
 }
@@ -301,6 +383,22 @@ function handleBackToTitle(e) {
 if (backBtn) {
 	backBtn.addEventListener('click', handleBackToTitle);
 	backBtn.addEventListener('touchend', handleBackToTitle);
+}
+
+// 難易度選択画面からメインメニューに戻るボタンのイベント
+if (backToMenuBtn) {
+	backToMenuBtn.addEventListener('click', (e) => {
+		e.preventDefault();
+		e.stopPropagation();
+		if (difficultySelect) difficultySelect.style.display = 'none';
+		if (mainMenu) mainMenu.style.display = 'block';
+	});
+	backToMenuBtn.addEventListener('touchend', (e) => {
+		e.preventDefault();
+		e.stopPropagation();
+		if (difficultySelect) difficultySelect.style.display = 'none';
+		if (mainMenu) mainMenu.style.display = 'block';
+	});
 }
 
 document.addEventListener('keydown', (e) => {
@@ -343,6 +441,9 @@ backToTitleBtn.addEventListener('click', () => {
 	restartBtn.style.display = 'none';
 	backToTitleBtn.style.display = 'none';
 	gameStarted = false;
+	// メインメニューに戻る
+	if (mainMenu) mainMenu.style.display = 'block';
+	if (difficultySelect) difficultySelect.style.display = 'none';
 	updateTitleStats(); // タイトル画面の記録を更新
 });
 
@@ -365,7 +466,8 @@ function spawnSoldier() { // 一般兵をスポーン
         x = Math.random() * (canvas.width - 40);
         tries++;
     } while (isOverlap(x, y, soldiers) && tries < 10);
-	soldiers.push({ x, y: -40, width: 40, height: 40, speed: 240 }); // 速度を秒速に変更（ピクセル/秒）
+	const settings = difficultySettings[currentDifficulty];
+	soldiers.push({ x, y: -40, width: 40, height: 40, speed: settings.enemySpeed });
 }
 
 function update(deltaTime) {
@@ -556,7 +658,7 @@ function update(deltaTime) {
 			player.y < bomber.y + bomber.height &&
 			player.y + player.height > bomber.y
 		) {
-			if (!isInvincible) { // 無敵状態でなければゲームオーバー
+			if (!isInvincible && currentDifficulty !== 'easy') { // 無敵状態でなく、イージーモードでなければゲームオーバー
 				gameOver = true;
 				// 最高スコア更新
 				if (score > highScore) {
@@ -737,6 +839,7 @@ function gameLoop(currentTime) {
 	draw();
 	if (!gameOver) {
 		soldierTimer += deltaTime * 1000; // ミリ秒単位で加算
+		const settings = difficultySettings[currentDifficulty];
 		
 		// スコアが100上がるごとに特殊アイテムをスポーン
 		if (score - lastSpecialItemScore >= 500) {
@@ -744,11 +847,11 @@ function gameLoop(currentTime) {
 			lastSpecialItemScore = score;
 		}
 		
-		if (soldierTimer >= 1000) { // 1秒ごとに一般兵をスポーン
+		if (soldierTimer >= settings.enemySpawnInterval) { // 難易度に応じた間隔で一般兵をスポーン
 			spawnSoldier();
-			soldierTimer -= 1000;
+			soldierTimer -= settings.enemySpawnInterval;
 		}
-        if (soldierTimer % 2000 < deltaTime * 1000) spawnBomberSoldier(); // 約2秒ごとに爆弾兵をスポーン
+        if (soldierTimer % settings.badItemSpawnInterval < deltaTime * 1000) spawnBomberSoldier(); // 難易度に応じた間隔で爆弾兵をスポーン
 	}
 	requestAnimationFrame(gameLoop);
 }

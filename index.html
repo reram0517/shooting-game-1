@@ -17,11 +17,11 @@ body {
 #gameContainer {
 	display: flex;
 	flex-direction: column;
-	align-items: center;
+	align-items: flex-start;
 	justify-content: flex-start;
 	height: 100vh;
 	padding-top: 5px;
-	padding-bottom: 80px;
+	padding-bottom: max(150px, 20vh);
 	box-sizing: border-box;
 	overflow: hidden;
 }
@@ -30,11 +30,16 @@ canvas {
 	display: block; 
 	border: 2px solid #fff;
 	touch-action: none;
+	width: calc(100vw - 115px);
+	max-height: calc(100vh - 300px);
+	margin-left: 10px;
 }
 #score { 
 	font-size: clamp(16px, 4vw, 22px); 
 	margin: 5px; 
 	line-height: 1.5;
+	width: 100%;
+	text-align: center;
 }
 #score div {
 	margin: 3px 0;
@@ -44,12 +49,18 @@ canvas {
 	font-weight: bold;
 	color: #0ff;
 }
-h1 { font-size: 22px; margin: 5px; }
+h1 { 
+	font-size: 22px; 
+	margin: 5px; 
+	width: 100%; 
+	text-align: center;
+}
 #restartBtn, #backToTitleBtn {
 	position: relative;
 	z-index: 50;
 	font-size: 20px;
 	margin-top: 10px;
+	margin-bottom: 10px;
 	padding: 15px 30px;
 	background: #0ff;
 	color: #000;
@@ -62,6 +73,13 @@ h1 { font-size: 22px; margin: 5px; }
 }
 #restartBtn, #backToTitleBtn {
 	margin: 5px;
+}
+.button-container {
+	width: 100%;
+	display: flex;
+	justify-content: center;
+	gap: 10px;
+	flex-wrap: wrap;
 }
 #restartBtn:active {
 	background: #0aa;
@@ -212,6 +230,22 @@ h1 { font-size: 22px; margin: 5px; }
 <p>最高スコア: <span id="titleHighScore">0</span></p>
 <p>最高時間: <span id="titleHighTime">0:00</span></p>
 </div>
+<div id="mainMenu">
+<div class="button-group">
+<button id="startBtn">ゲーム選択</button>
+<button id="rulesBtn">ゲームルール</button>
+</div>
+</div>
+<div id="difficultySelect" style="margin: 20px 0; display: none;">
+<p style="color: #0ff; font-size: 18px; margin-bottom: 10px;">難易度を選択してスタート</p>
+<div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; margin-bottom: 20px;">
+<button class="difficultyBtn" data-difficulty="easy" style="padding: 15px 30px; font-size: 18px; background: #0f0; color: #000; border: none; border-radius: 10px; cursor: pointer; font-weight: bold;">イージー</button>
+<button class="difficultyBtn" data-difficulty="normal" style="padding: 15px 30px; font-size: 18px; background: #0ff; color: #000; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; border: 3px solid #fff;">ノーマル</button>
+		<button class="difficultyBtn" data-difficulty="hard" style="padding: 15px 30px; font-size: 18px; background: #f00; color: #fff; border: none; border-radius: 10px; cursor: pointer; font-weight: bold;">ハード</button>
+	</div>
+	<button id="playBtn" style="padding: 20px 50px; font-size: 24px; background: #0ff; color: #000; border: none; border-radius: 10px; cursor: pointer; font-weight: bold;">ゲームスタート</button>
+	<button id="backToMenuBtn" style="margin-top: 15px; padding: 12px 30px; font-size: 16px; background: #666; color: #fff; border: none; border-radius: 10px; cursor: pointer;">タイトルに戻る</button>
+</div>
 <div class="instructions">
 <h3 style="color: #0ff;">ゲームルール</h3>
 <p>【目的】<br>敵を撃ち落としてスコアを稼ごう！</p>
@@ -224,14 +258,10 @@ h1 { font-size: 22px; margin: 5px; }
 <p>【PC操作】<br>矢印キー: 移動<br>スペース: 射撃<br>R: リロード</p>
 <p>【スマホ操作】<br>画面下のボタンで操作</p>
 <p>【アイテム】<br>
-	<span style="display: inline-block; width: 20px; height: 20px; background: #0f0; border: 1px solid #fff; vertical-align: middle; margin-right: 5px;"></span>緑色: マガジン補充<br>
-	<span style="display: inline-block; width: 20px; height: 20px; background: #d800ff; border: 2px solid #fff; border-radius: 50%; vertical-align: middle; margin-right: 5px;"></span>紫の丸：拾うと無敵モード</p>
+	<span style="display: inline-block; width: 20px; height: 20px; background: #0f0; border: 1px solid #fff; vertical-align: middle; margin-right: 5px;"></span>緑色: マガジン補充<br>→スコアが500増えるごとに発生<br>
+	<span style="display: inline-block; width: 20px; height: 20px; background: #d800ff; border: 2px solid #fff; border-radius: 50%; vertical-align: middle; margin-right: 5px;"></span>紫の丸：拾うと無敵モード<br>→スコアが500増えるごとに発生</p>
 <p>【無敵モード】<br>無敵モード中は弾が無限で<br>敵にあたっても死なない！！</p>
 <p>【ヒント】<br>弾切れに注意！こまめにリロードしよう</p>
-</div>
-<div class="button-group">
-<button id="startBtn">ゲームスタート</button>
-<button id="rulesBtn">ゲームルール</button>
 </div>
 <button id="backBtn">戻る</button>
 </div>
@@ -239,8 +269,10 @@ h1 { font-size: 22px; margin: 5px; }
 <h1>アーケードシューティングゲーム</h1>
 <div id="score">スコア: 0</div>
 <canvas id="gameCanvas"></canvas>
+<div class="button-container">
 <button id="restartBtn" style="display:none;">もう一度スタート</button>
 <button id="backToTitleBtn" style="display:none;">タイトルに戻る</button>
+</div>
 </div>
 <div id="controls">
 <div class="control-group">
