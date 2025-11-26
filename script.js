@@ -65,11 +65,16 @@ const BULLET_SPEED = 720; //弾の速度（ピクセル/秒）
 const MAX_MAGAZINES = 5; // 最大マガジン数
 const MAGAZINE_SIZE = 20; // マガジンの弾数
 const RELOAD_TIME = 2000; // リロード時間（ミリ秒）
+const INVINCIBLE_TIME = 5; // 無敵時間（秒）
 
 let remainingMagazines = MAX_MAGAZINES; // 残りマガジン数
 let magazineItems = []; // マガジンアイテムの配列
+let specialItems = []; // 特殊アイテムの配列
+let isInvincible = false; // 無敵状態かどうか
+let invincibleTimer = 0; // 無敵時間の残り
 
 let player = null, bullets, enemies, score, gameOver, enemyTimer;
+let specialItemTimer = 0; // 特殊アイテム用タイマー
 let lastTime = 0; // デルタタイム計算用
 let playTime = 0; // プレイ時間（秒）
 let highScore = localStorage.getItem('highScore') ? parseInt(localStorage.getItem('highScore')) : 0; // 最高スコア
@@ -190,6 +195,7 @@ function initGame() {
 	score = 0;
 	gameOver = false;
 	enemyTimer = 0;
+	specialItemTimer = 0; // 特殊アイテムタイマーをリセット
 	currentAmmo = MAGAZINE_SIZE;
 	isReloading = false;
 	reloadTimer = 0;
@@ -197,6 +203,9 @@ function initGame() {
 	lastTime = performance.now(); // デルタタイム計算の開始時刻
 	remainingMagazines = MAX_MAGAZINES; // 残りマガジン数をリセット
 	magazineItems = []; // マガジンアイテム配列をリセット
+	specialItems = []; // 特殊アイテム配列をリセット
+	isInvincible = false; // 無敵状態をリセット
+	invincibleTimer = 0; // 無敵タイマーをリセット
 	playTime = 0; // プレイ時間をリセット
 
 	restartBtn.style.display = 'none';
@@ -338,6 +347,15 @@ function spawnMagazineItem(x, y) {
 	magazineItems.push({ x, y, width: 30, height: 30, speed: 120 }); // ピクセル/秒
 }
 
+function spawnSpecialItem() {
+	let x, y = -40, tries = 0;
+	do {
+		x = Math.random() * (canvas.width - 40);
+		tries++;
+	} while (isOverlap(x, y, specialItems) && tries < 10);
+	specialItems.push({ x, y, width: 35, height: 35, speed: 150 }); // ピクセル/秒
+}
+
 function spawnEnemy() {
 	let x,y = -40,tries = 0;
     do {
@@ -370,6 +388,19 @@ function update(deltaTime) {
 	magazineItems.forEach(item => item.y += item.speed * deltaTime);
 	magazineItems = magazineItems.filter(item => item.y < canvas.height);
 
+	// 特殊アイテムの移動（デルタタイム適用）
+	specialItems.forEach(item => item.y += item.speed * deltaTime);
+	specialItems = specialItems.filter(item => item.y < canvas.height);
+
+	// 無敵タイマーの更新
+	if (isInvincible) {
+		invincibleTimer -= deltaTime;
+		if (invincibleTimer <= 0) {
+			isInvincible = false;
+			invincibleTimer = 0;
+		}
+	}
+
 	// リロード処理（ミリ秒単位）
 	if (isReloading) {
 		reloadTimer -= deltaTime * 1000; // デルタタイムをミリ秒に変換
@@ -399,6 +430,20 @@ function update(deltaTime) {
 		}
 	});
 
+	// プレイヤーと特殊アイテムの当たり判定
+	specialItems.forEach((item, iIdx) => {
+		if (
+			player.x < item.x + item.width &&
+			player.x + player.width > item.x &&
+			player.y < item.y + item.height &&
+			player.y + player.height > item.y
+		) {
+			specialItems.splice(iIdx, 1);
+			isInvincible = true; // 無敵状態にする
+			invincibleTimer = INVINCIBLE_TIME; // 10秒間
+		}
+	});
+
 	//弾とbaditemの当たり判定
 	bullets.forEach((bullet, bIdx) => {
 		badItems.forEach((item, iIdx) => {
@@ -410,7 +455,11 @@ function update(deltaTime) {
 			) {
 				bullets.splice(bIdx, 1);
 				badItems.splice(iIdx, 1);
-				score -= 20; // スコア減少
+				if (isInvincible) { // 無敵状態ならスコア増加
+					score += 10;
+				} else { // 無敵状態でなければスコア減少
+					score -= 20;
+				}
 			}
 		});
 	});
@@ -423,7 +472,7 @@ function update(deltaTime) {
 	// キーボードまたはタッチで射撃
 	if(keys[' '] || touchControls.shoot) {
 		if(shootCooldown <= 0 && !isReloading) {
-			if (currentAmmo > 0) {
+			if (currentAmmo > 0 || isInvincible) { // 無敵中は弾無限
 				bullets.push({
 				 x: player.x + player.width / 2 - BULLET_W / 2,
 				 y: player.y,
@@ -431,7 +480,9 @@ function update(deltaTime) {
 				height: BULLET_H,
 				 speed: BULLET_SPEED
 							});
-				currentAmmo--;
+				if (!isInvincible) { // 無敵中でなければ弾を消費
+					currentAmmo--;
+				}
 				shootCooldown = 250; // クールダウン時間（ミリ秒）
 				// 自動リロードは行わない（手動でRキーを押してください）
 			} else {
@@ -484,20 +535,22 @@ function update(deltaTime) {
 			player.y < enemy.y + enemy.height &&
 			player.y + player.height > enemy.y
 		) {
-			gameOver = true;
-			// 最高スコア更新
-			if (score > highScore) {
-				highScore = score;
-				localStorage.setItem('highScore', highScore);
+			if (!isInvincible) { // 無敵状態でなければゲームオーバー
+				gameOver = true;
+				// 最高スコア更新
+				if (score > highScore) {
+					highScore = score;
+					localStorage.setItem('highScore', highScore);
+				}
+				// 最高生存時間更新
+				if (playTime > highTime) {
+					highTime = playTime;
+					localStorage.setItem('highTime', highTime);
+				}
+				restartBtn.style.display = 'inline-block';
+				backToTitleBtn.style.display = 'inline-block';
+				if (controlsDiv) controlsDiv.style.display = 'none'; // 操作ボタンを非表示
 			}
-			// 最高生存時間更新
-			if (playTime > highTime) {
-				highTime = playTime;
-				localStorage.setItem('highTime', highTime);
-			}
-			restartBtn.style.display = 'inline-block';
-			backToTitleBtn.style.display = 'inline-block';
-			if (controlsDiv) controlsDiv.style.display = 'none'; // 操作ボタンを非表示
 		}
 	});
 }
@@ -512,8 +565,12 @@ function draw() {
     }); 
 
 	// プレイヤー
-	//マガジンが０の場合は赤それ以外はシアン
-	ctx.fillStyle = remainingMagazines === 0 ? '#f00' : '#0ff';
+	//マガジンが０の場合は赤、無敵状態ならゴールド、それ以外はシアン
+	if (isInvincible) {
+		ctx.fillStyle = '#ffd700'; // ゴールド（無敵状態）
+	} else {
+		ctx.fillStyle = remainingMagazines === 0 ? '#f00' : '#0ff';
+	}
 	ctx.fillRect(player.x, player.y, player.width, player.height);
 
 	//リロード中はオレンジの枠線を追加
@@ -527,6 +584,13 @@ function draw() {
 	else if (currentAmmo === 0) {
 		ctx.strokeStyle = '#f00'; // 赤色
 		ctx.lineWidth = 3;
+		ctx.strokeRect(player.x, player.y, player.width, player.height);
+	}
+	
+	// 無敵状態の枠線
+	else if (isInvincible) {
+		ctx.strokeStyle = '#ffd700'; // ゴールド
+		ctx.lineWidth = 4;
 		ctx.strokeRect(player.x, player.y, player.width, player.height);
 	}
 
@@ -594,6 +658,27 @@ function draw() {
 	magazineItems.forEach(item => {
 		ctx.fillRect(item.x, item.y, item.width, item.height);
 	});
+
+	// 特殊アイテムの描画（紫色の星マーク）
+	ctx.fillStyle = '#d800ff'; // 紫色
+	specialItems.forEach(item => {
+		// 星のような形を描画
+		ctx.beginPath();
+		ctx.arc(item.x + item.width / 2, item.y + item.height / 2, item.width / 2, 0, Math.PI * 2);
+		ctx.fill();
+		ctx.strokeStyle = '#fff';
+		ctx.lineWidth = 2;
+		ctx.stroke();
+	});
+
+	// 無敵タイマーの表示
+	if (isInvincible) {
+		ctx.fillStyle = '#ffd700';
+		ctx.font = 'bold 28px sans-serif';
+		ctx.textAlign = 'center';
+		ctx.fillText(`⭐ 無敵: ${Math.ceil(invincibleTimer)}秒`, canvas.width / 2, canvas.height - 20);
+		ctx.textAlign = 'left';
+	}
 }
 
 function gameLoop(currentTime) {
@@ -611,11 +696,19 @@ function gameLoop(currentTime) {
 	draw();
 	if (!gameOver) {
 		enemyTimer += deltaTime * 1000; // ミリ秒単位で加算
+		specialItemTimer += deltaTime * 1000; // 特殊アイテムタイマー
+		
 		if (enemyTimer >= 1000) { // 1秒ごと
 			spawnEnemy();
 			enemyTimer -= 1000;
 		}
         if (enemyTimer % 2000 < deltaTime * 1000) spawnBadItem(); // 約2秒ごと
+        
+        // 特殊アイテムは30秒ごと
+        if (specialItemTimer >= 30000) {
+        	spawnSpecialItem();
+        	specialItemTimer = 0;
+        }
 	}
 	requestAnimationFrame(gameLoop);
 }
