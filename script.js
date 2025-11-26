@@ -204,7 +204,11 @@ canvas.addEventListener('touchend', (e) => {
 
 let bomberSoldiers = []; // 爆弾兵
 function spawnBomberSoldier() { // 爆弾兵をスポーン
-    const x = Math.random() * (canvas.width - 40);
+    let x, y = -40, tries = 0;
+    do {
+        x = Math.random() * (canvas.width - 40);
+        tries++;
+    } while ((isOverlap(x, y, bomberSoldiers) || isOverlap(x, y, soldiers)) && tries < 10);
     const settings = difficultySettings[currentDifficulty];
     bomberSoldiers.push({ x, y: -40, width: 40, height: 40, speed: settings.badItemSpeed });
 }
@@ -529,7 +533,7 @@ function spawnSoldier() { // 一般兵をスポーン
     do {
         x = Math.random() * (canvas.width - 40);
         tries++;
-    } while (isOverlap(x, y, soldiers) && tries < 10);
+    } while ((isOverlap(x, y, soldiers) || isOverlap(x, y, bomberSoldiers)) && tries < 10);
 	const settings = difficultySettings[currentDifficulty];
 	soldiers.push({ x, y: -40, width: 40, height: 40, speed: settings.enemySpeed });
 }
@@ -812,7 +816,7 @@ function draw() {
 		if (currentAmmo <= 3 && currentAmmo > 0) {
 			ctx.fillStyle = '#ff0';
 			ctx.font = 'bold 24px sans-serif';
-			ctx.fillText('⚠ 弾薬残り少ない！', canvas.width / 2, 60);
+			ctx.fillText(`⚠ 弾薬残り${currentAmmo}発！`, canvas.width / 2, 60);
 		} else if (currentAmmo === 0 && remainingMagazines > 0) {
 			ctx.fillStyle = '#f00';
 			ctx.font = 'bold 28px sans-serif';
@@ -820,7 +824,7 @@ function draw() {
 		} else if (remainingMagazines === 0 && currentAmmo <= 5) {
 			ctx.fillStyle = '#f00';
 			ctx.font = 'bold 24px sans-serif';
-			ctx.fillText('⚠ マガジン切れ！', canvas.width / 2, 60);
+			ctx.fillText(`⚠ マガジン切れ！残り${currentAmmo}発`, canvas.width / 2, 60);
 		}
 		ctx.textAlign = 'left';
 	}
