@@ -65,7 +65,7 @@ const BULLET_SPEED = 720; //弾の速度（ピクセル/秒）
 const MAX_MAGAZINES = 5; // 最大マガジン数
 const MAGAZINE_SIZE = 20; // マガジンの弾数
 const RELOAD_TIME = 2000; // リロード時間（ミリ秒）
-const INVINCIBLE_TIME = 10; // 無敵時間（秒）
+const INVINCIBLE_TIME = 5; // 無敵時間（秒）
 
 let remainingMagazines = MAX_MAGAZINES; // 残りマガジン数
 let magazineItems = []; // マガジンアイテムの配列
@@ -75,6 +75,7 @@ let invincibleTimer = 0; // 無敵時間の残り
 
 let player = null, bullets, soldiers, score, gameOver, soldierTimer; // 一般兵
 let specialItemTimer = 0; // 特殊アイテム用タイマー
+let lastSpecialItemScore = 0; // 最後に特殊アイテムが出た時のスコア
 let lastTime = 0; // デルタタイム計算用
 let playTime = 0; // プレイ時間（秒）
 let highScore = localStorage.getItem('highScore') ? parseInt(localStorage.getItem('highScore')) : 0; // 最高スコア
@@ -197,6 +198,7 @@ function initGame() {
 	gameOver = false;
 	soldierTimer = 0; // 一般兵のスポーンタイマー
 	specialItemTimer = 0; // 特殊アイテムタイマーをリセット
+	lastSpecialItemScore = 0; // 最後に特殊アイテムが出た時のスコアをリセット
 	currentAmmo = MAGAZINE_SIZE;
 	isReloading = false;
 	reloadTimer = 0;
@@ -715,7 +717,7 @@ function draw() {
 		ctx.fillStyle = '#ffd700';
 		ctx.font = 'bold 28px sans-serif';
 		ctx.textAlign = 'center';
-		ctx.fillText(`⭐ 無敵: ${Math.ceil(invincibleTimer)}秒`, canvas.width / 2, canvas.height - 20);
+		ctx.fillText(`⭐ 無敵: ${Math.ceil(invincibleTimer)}秒`, canvas.width / 2, 40);
 		ctx.textAlign = 'left';
 	}
 }
@@ -735,19 +737,18 @@ function gameLoop(currentTime) {
 	draw();
 	if (!gameOver) {
 		soldierTimer += deltaTime * 1000; // ミリ秒単位で加算
-		specialItemTimer += deltaTime * 1000; // 特殊アイテムタイマー
+		
+		// スコアが100上がるごとに特殊アイテムをスポーン
+		if (score - lastSpecialItemScore >= 500) {
+			spawnSpecialItem();
+			lastSpecialItemScore = score;
+		}
 		
 		if (soldierTimer >= 1000) { // 1秒ごとに一般兵をスポーン
 			spawnSoldier();
 			soldierTimer -= 1000;
 		}
         if (soldierTimer % 2000 < deltaTime * 1000) spawnBomberSoldier(); // 約2秒ごとに爆弾兵をスポーン
-        
-        // 特殊アイテムは15秒ごと
-        if (specialItemTimer >= 15000) {
-        	spawnSpecialItem();
-        	specialItemTimer = 0;
-        }
 	}
 	requestAnimationFrame(gameLoop);
 }
