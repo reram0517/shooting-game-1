@@ -468,8 +468,8 @@ function update(deltaTime) {
 				enemies.splice(eIdx, 1);
 				score += 10;
 
-				// 一定確率でマガジンアイテムをドロップ
-				if (Math.random() < 0.1) { // 10%の確率
+				// 一定確率でマガジンアイテムをドロップ（最大数未満の場合のみ）
+				if (remainingMagazines < MAX_MAGAZINES && Math.random() < 0.1) { // 10%の確率
 					spawnMagazineItem(enemyX, enemyY);
 				}
 			}
