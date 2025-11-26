@@ -34,15 +34,10 @@ canvas {
 #score { 
 	font-size: clamp(14px, 3.5vw, 18px); 
 	margin: 3px; 
-	line-height: 1.6;
+	line-height: 1.4;
 }
 #score div {
-	margin: 4px 0;
-}
-#score .current-score {
-	font-size: clamp(18px, 4.5vw, 24px);
-	font-weight: bold;
-	color: #0ff;
+	margin: 2px 0;
 }
 h1 { font-size: 22px; margin: 5px; }
 #restartBtn, #backToTitleBtn {
@@ -59,7 +54,6 @@ h1 { font-size: 22px; margin: 5px; }
 }
 #backToTitleBtn {
 	background: #999;
-	margin-left: 0;
 }
 #restartBtn, #backToTitleBtn {
 	margin: 5px;
@@ -216,9 +210,14 @@ h1 { font-size: 22px; margin: 5px; }
 <div class="instructions">
 <h3 style="color: #0ff;">ゲームルール</h3>
 <p>【目的】<br>敵を撃ち落としてスコアを稼ごう！</p>
+<p>【敵】<br>赤色の四角: 一般兵（10点）
+	<br>黄色の四角: 爆弾兵（－20点）
+	<br>撃つと爆発
+	<br>敵にあたると<span style="color: red !important; font-weight: bold;">ゲームオーバー</span>
+</p>
 <p>【PC操作】<br>矢印キー: 移動 / スペース: 射撃 / R: リロード</p>
 <p>【スマホ操作】<br>画面下のボタンで操作</p>
-<p>【アイテム】<br>🟢 緑色: マガジン補充<br>🟡 黄色: 避けよう（弾をあてると減点）</p>
+<p>【アイテム】<br>🟢 緑色: マガジン補充<br>紫の丸：拾うと無敵モード</p>
 <p>【ヒント】<br>弾切れに注意！こまめにリロードしよう</p>
 </div>
 <div class="button-group">
