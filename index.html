@@ -20,7 +20,7 @@ body {
 	align-items: flex-start;
 	justify-content: flex-start;
 	height: 100vh;
-	padding-top: 5px;
+	padding-top: 5%;
 	padding-bottom: max(150px, 20vh);
 	box-sizing: border-box;
 	overflow: hidden;
@@ -31,7 +31,7 @@ canvas {
 	border: 2px solid #fff;
 	touch-action: none;
 	width: calc(100vw - 115px);
-	max-height: calc(100vh - 300px);
+	max-height: calc(100vh - 200px);
 	margin-left: 10px;
 }
 #score { 
@@ -171,12 +171,7 @@ h1 {
 	position: fixed;
 	z-index: 100;
 }
-#controls .control-group:first-child {
-	position: fixed;
-	bottom: 10px;
-	left: 15px;
-}
-#controls .control-group:last-child {
+#controls .control-group {
 	position: fixed;
 	bottom: 100px; /* 初期値、JavaScriptで動的に変更される */
 	right: 15px;
@@ -213,13 +208,89 @@ h1 {
 		padding-bottom: 120px;
 	}
 	canvas {
-		max-height: calc(100vh - 200px);
+		max-height: calc(100vh - 100px);
 	}
 	#controls button {
 		width: 55px;
 		height: 55px;
 		font-size: 20px;
 	}
+}
+#gameOverScreen {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: rgba(0, 0, 0, 0.95);
+	display: none;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	z-index: 300;
+	padding: 20px;
+	box-sizing: border-box;
+}
+#gameOverScreen.show {
+	display: flex;
+}
+#gameOverScreen h2 {
+	font-size: clamp(32px, 8vw, 48px);
+	color: #f00;
+	margin-bottom: 30px;
+}
+#gameOverScreen .result {
+	background: rgba(255, 255, 255, 0.1);
+	border: 2px solid #0ff;
+	border-radius: 15px;
+	padding: 30px;
+	margin-bottom: 30px;
+	min-width: 280px;
+}
+#gameOverScreen .result p {
+	font-size: clamp(18px, 5vw, 24px);
+	margin: 15px 0;
+	color: #fff;
+}
+#gameOverScreen .result .final-score {
+	font-size: clamp(28px, 7vw, 36px);
+	color: #0ff;
+	font-weight: bold;
+}
+#gameOverScreen .result .new-record {
+	color: #ffd700;
+	font-weight: bold;
+	animation: blink 1s infinite;
+}
+@keyframes blink {
+	0%, 100% { opacity: 1; }
+	50% { opacity: 0.5; }
+}
+#gameOverScreen .button-group {
+	display: flex;
+	gap: 15px;
+	flex-wrap: wrap;
+	justify-content: center;
+}
+#restartBtn2, #backToTitleBtn2 {
+	font-size: 20px;
+	padding: 15px 35px;
+	background: #0ff;
+	color: #000;
+	border: none;
+	border-radius: 10px;
+	cursor: pointer;
+	font-weight: bold;
+}
+#backToTitleBtn2 {
+	background: #999;
+	color: #fff;
+}
+#restartBtn2:active {
+	background: #0aa;
+}
+#backToTitleBtn2:active {
+	background: #777;
 }
 </style>
 </head>
@@ -274,11 +345,22 @@ h1 {
 <button id="backToTitleBtn" style="display:none;">タイトルに戻る</button>
 </div>
 </div>
-<div id="controls">
-<div class="control-group">
-<button id="leftBtn">&#x25C0;</button>
-<button id="rightBtn">&#x25B6;</button>
+<div id="gameOverScreen">
+	<h2>GAME OVER</h2>
+	<div class="result">
+		<p>最終スコア</p>
+		<p class="final-score" id="finalScore">0</p>
+		<p id="finalTime">生存時間: 0:00</p>
+		<p id="recordMessage" style="display: none;" class="new-record">🎉 NEW RECORD! 🎉</p>
+		<p id="highScoreDisplay">最高スコア: 0</p>
+		<p id="highTimeDisplay">最高時間: 0:00</p>
+	</div>
+	<div class="button-group">
+		<button id="restartBtn2">もう一度プレイ</button>
+		<button id="backToTitleBtn2">タイトルに戻る</button>
+	</div>
 </div>
+<div id="controls">
 <div class="control-group">
 <button id="shootBtn">&#x1F52B;</button>
 <button id="reloadBtn">&#x1F504;</button>

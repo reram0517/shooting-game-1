@@ -2,6 +2,9 @@ const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 const restartBtn = document.getElementById('restartBtn');
 const backToTitleBtn = document.getElementById('backToTitleBtn');
+const restartBtn2 = document.getElementById('restartBtn2');
+const backToTitleBtn2 = document.getElementById('backToTitleBtn2');
+const gameOverScreen = document.getElementById('gameOverScreen');
 const controlsDiv = document.getElementById('controls');
 const startScreen = document.getElementById('startScreen');
 const startBtn = document.getElementById('startBtn');
@@ -56,14 +59,13 @@ function resizeCanvas() {
 	const maxWidth = window.innerWidth - leftMargin - rightButtonSpace;
 	
 	// 下部のスペースを動的に計算
-	// コントロール部分の高さ(約130px) + ボタン2つ分の高さ(約120px) + マージン(約50px)
-	const controlsHeight = 130;
-	const buttonsHeight = 120;
-	const extraMargin = 50;
-	const bottomSpace = controlsHeight + buttonsHeight + extraMargin;
+	// コントロール部分の高さ(約90px) + マージン(約30px)
+	const controlsHeight = 90;
+	const extraMargin = 30;
+	const bottomSpace = controlsHeight + extraMargin;
 	
 	// 画面の高さに応じて調整（小さい画面では最低限のスペースを確保）
-	const minBottomSpace = 250;
+	const minBottomSpace = 120;
 	const maxHeight = window.innerHeight - Math.max(bottomSpace, minBottomSpace);
 	
 	// 利用可能なスペースいっぱいに引き延ばす
@@ -94,7 +96,7 @@ function updateControlsPosition() {
 
 // 初期サイズ設定とリサイズイベント
 // resizeCanvas(); // 初回実行を削除（playerがnullのため）
-const initialBottomSpace = Math.max(300, 130 + 120 + 50);
+const initialBottomSpace = Math.max(120, 90 + 30);
 const initialLeftMargin = 10; // 左側の余白
 const initialRightSpace = 105; // 右側のボタンスペース
 canvas.width = Math.floor(Math.max(window.innerWidth - initialLeftMargin - initialRightSpace, 200));
@@ -151,20 +153,8 @@ document.addEventListener('keydown', (e) => { keys[e.key] = true; });
 document.addEventListener('keyup', (e) => { keys[e.key] = false; });
 
 // タッチ操作
-const leftBtn = document.getElementById('leftBtn');
-const rightBtn = document.getElementById('rightBtn');
 const shootBtn = document.getElementById('shootBtn');
 const reloadBtn = document.getElementById('reloadBtn');
-
-if (leftBtn) {
-	leftBtn.addEventListener('touchstart', (e) => { e.preventDefault(); touchControls.left = true; });
-	leftBtn.addEventListener('touchend', (e) => { e.preventDefault(); touchControls.left = false; });
-}
-
-if (rightBtn) {
-	rightBtn.addEventListener('touchstart', (e) => { e.preventDefault(); touchControls.right = true; });
-	rightBtn.addEventListener('touchend', (e) => { e.preventDefault(); touchControls.right = false; });
-}
 
 if (shootBtn) {
 	shootBtn.addEventListener('touchstart', (e) => { e.preventDefault(); touchControls.shoot = true; });
@@ -404,16 +394,14 @@ if (backToMenuBtn) {
 document.addEventListener('keydown', (e) => {
     keys[e.key] = true;
     if(gameOver && (e.key === ' ' || e.key === 'Spacebar')) {
+		gameOverScreen.classList.remove('show');
         initGame();
 		keys[' '] = false; // スペースキーの状態をリセット
+		lastTime = performance.now();
+		requestAnimationFrame(gameLoop);
 		return; 
     }
 	if (gameOver) {
-		if (e.key === ' ' || e.key === 'Spacebar') {
-			initGame();
-			keys[' '] = false; // スペースキーの状態をリセット
-			return; 
-		}
 		return;
 	}
 	// 手動リロード（Rキー）
@@ -429,7 +417,60 @@ document.addEventListener('keyup', (e) => {
     keys[e.key] = false;
 });
 
+// ゲームオーバー画面を表示
+function showGameOverScreen() {
+	// 最高スコア更新
+	let isNewRecord = false;
+	if (score > highScore) {
+		highScore = score;
+		localStorage.setItem('highScore', highScore);
+		isNewRecord = true;
+	}
+	// 最高生存時間更新
+	if (playTime > highTime) {
+		highTime = playTime;
+		localStorage.setItem('highTime', highTime);
+		isNewRecord = true;
+	}
+	
+	// ゲームオーバー画面の情報を更新
+	document.getElementById('finalScore').textContent = score;
+	const minutes = Math.floor(playTime / 60);
+	const seconds = Math.floor(playTime % 60);
+	document.getElementById('finalTime').textContent = `生存時間: ${minutes}:${seconds.toString().padStart(2, '0')}`;
+	
+	if (isNewRecord) {
+		document.getElementById('recordMessage').style.display = 'block';
+	} else {
+		document.getElementById('recordMessage').style.display = 'none';
+	}
+	
+	const highMinutes = Math.floor(highTime / 60);
+	const highSeconds = Math.floor(highTime % 60);
+	document.getElementById('highScoreDisplay').textContent = `最高スコア: ${highScore}`;
+	document.getElementById('highTimeDisplay').textContent = `最高時間: ${highMinutes}:${highSeconds.toString().padStart(2, '0')}`;
+	
+	// 画面を表示
+	gameOverScreen.classList.add('show');
+	if (controlsDiv) controlsDiv.style.display = 'none';
+}
+
 restartBtn.addEventListener('click', () => {
+	initGame();
+	lastTime = performance.now();
+	requestAnimationFrame(gameLoop);
+});
+
+restartBtn2.addEventListener('click', () => {
+	gameOverScreen.classList.remove('show');
+	initGame();
+	lastTime = performance.now();
+	requestAnimationFrame(gameLoop);
+});
+
+restartBtn2.addEventListener('touchend', (e) => {
+	e.preventDefault();
+	gameOverScreen.classList.remove('show');
 	initGame();
 	lastTime = performance.now();
 	requestAnimationFrame(gameLoop);
@@ -440,6 +481,29 @@ backToTitleBtn.addEventListener('click', () => {
 	controlsDiv.style.display = 'none';
 	restartBtn.style.display = 'none';
 	backToTitleBtn.style.display = 'none';
+	gameStarted = false;
+	// メインメニューに戻る
+	if (mainMenu) mainMenu.style.display = 'block';
+	if (difficultySelect) difficultySelect.style.display = 'none';
+	updateTitleStats(); // タイトル画面の記録を更新
+});
+
+backToTitleBtn2.addEventListener('click', () => {
+	gameOverScreen.classList.remove('show');
+	startScreen.style.display = 'flex';
+	controlsDiv.style.display = 'none';
+	gameStarted = false;
+	// メインメニューに戻る
+	if (mainMenu) mainMenu.style.display = 'block';
+	if (difficultySelect) difficultySelect.style.display = 'none';
+	updateTitleStats(); // タイトル画面の記録を更新
+});
+
+backToTitleBtn2.addEventListener('touchend', (e) => {
+	e.preventDefault();
+	gameOverScreen.classList.remove('show');
+	startScreen.style.display = 'flex';
+	controlsDiv.style.display = 'none';
 	gameStarted = false;
 	// メインメニューに戻る
 	if (mainMenu) mainMenu.style.display = 'block';
@@ -633,19 +697,7 @@ function update(deltaTime) {
 		) {
 			if (!isInvincible) { // 無敵状態でなければゲームオーバー
 				gameOver = true;
-				// 最高スコア更新
-				if (score > highScore) {
-					highScore = score;
-					localStorage.setItem('highScore', highScore);
-				}
-				// 最高生存時間更新
-				if (playTime > highTime) {
-					highTime = playTime;
-					localStorage.setItem('highTime', highTime);
-				}
-				restartBtn.style.display = 'inline-block';
-				backToTitleBtn.style.display = 'inline-block';
-				if (controlsDiv) controlsDiv.style.display = 'none'; // 操作ボタンを非表示
+				showGameOverScreen();
 			}
 		}
 	});
@@ -660,19 +712,7 @@ function update(deltaTime) {
 		) {
 			if (!isInvincible && currentDifficulty !== 'easy') { // 無敵状態でなく、イージーモードでなければゲームオーバー
 				gameOver = true;
-				// 最高スコア更新
-				if (score > highScore) {
-					highScore = score;
-					localStorage.setItem('highScore', highScore);
-				}
-				// 最高生存時間更新
-				if (playTime > highTime) {
-					highTime = playTime;
-					localStorage.setItem('highTime', highTime);
-				}
-				restartBtn.style.display = 'inline-block';
-				backToTitleBtn.style.display = 'inline-block';
-				if (controlsDiv) controlsDiv.style.display = 'none'; // 操作ボタンを非表示
+				showGameOverScreen();
 			}
 		}
 	});
@@ -785,16 +825,7 @@ function draw() {
 		ctx.textAlign = 'left';
 	}
 
-	// ゲームオーバー
-	if (gameOver) {
-		ctx.fillStyle = '#fff';
-		ctx.font = `bold ${Math.min(48, canvas.width / 10)}px sans-serif`; // 画面サイズに応じたフォント
-		ctx.textAlign = 'center';
-		ctx.textBaseline = 'middle';
-		ctx.fillText('GAME OVER', canvas.width / 2, canvas.height / 2);
-		ctx.textAlign = 'left'; // テキスト配置を戻す
-		ctx.textBaseline = 'alphabetic'; // ベースラインを戻す
-	}
+	// ゲームオーバー時の処理は別画面で行うため、ここでは何も描画しない
 
 	// マガジンアイテムの描画
 	ctx.fillStyle = '#0f0';// 緑色
