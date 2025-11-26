@@ -10,28 +10,38 @@ const backBtn = document.getElementById('backBtn');
 const instructions = document.querySelector('.instructions');
 const buttonGroup = document.querySelector('.button-group');
 
+console.log('Script loaded');
+console.log('startBtn:', startBtn);
+console.log('rulesBtn:', rulesBtn);
+console.log('backBtn:', backBtn);
+
 let gameStarted = false;
 
 // キャンバスサイズを画面に合わせて調整
 function resizeCanvas() {
+	const oldWidth = canvas.width;
+	const oldHeight = canvas.height;
+	
 	const maxWidth = window.innerWidth - 120; // 右側のボタンスペースを確保
-	const maxHeight = window.innerHeight - 150; // 下の余白を少なく
+	const maxHeight = window.innerHeight - 250; // ボタンのスペースを十分に確保（150→250に変更）
 	
 	// 利用可能なスペースいっぱいに引き延ばす
 	canvas.width = Math.floor(maxWidth);
 	canvas.height = Math.floor(maxHeight);
 	
-	// プレイヤーの位置を画面サイズに合わせて調整
-	if (player) {
-		const xRatio = canvas.width / 480; // 元の幅に対する比率
-		const yRatio = canvas.height / 640; // 元の高さに対する比率
+	// プレイヤーの位置を画面サイズに合わせて調整（ゲーム開始後のみ）
+	if (player && gameStarted && oldWidth > 0 && oldHeight > 0) {
+		const xRatio = canvas.width / oldWidth;
+		const yRatio = canvas.height / oldHeight;
 		player.x = Math.min(player.x * xRatio, canvas.width - player.width);
 		player.y = Math.min(player.y * yRatio, canvas.height - player.height);
 	}
 }
 
 // 初期サイズ設定とリサイズイベント
-resizeCanvas();
+// resizeCanvas(); // 初回実行を削除（playerがnullのため）
+canvas.width = Math.floor(window.innerWidth - 120);
+canvas.height = Math.floor(window.innerHeight - 250); // ボタンのスペースを確保
 window.addEventListener('resize', resizeCanvas);
 
 const BULLET_W = 20; //弾の幅
@@ -45,7 +55,7 @@ const RELOAD_TIME = 2000; // リロード時間（ミリ秒）
 let remainingMagazines = MAX_MAGAZINES; // 残りマガジン数
 let magazineItems = []; // マガジンアイテムの配列
 
-let player, bullets, enemies, score, gameOver, enemyTimer;
+let player = null, bullets, enemies, score, gameOver, enemyTimer;
 let lastTime = 0; // デルタタイム計算用
 let playTime = 0; // プレイ時間（秒）
 let highScore = localStorage.getItem('highScore') ? parseInt(localStorage.getItem('highScore')) : 0; // 最高スコア
@@ -113,14 +123,18 @@ canvas.addEventListener('touchstart', (e) => {
 	e.preventDefault();
 	if (gameOver) {
 		initGame();
+		lastTime = performance.now();
+		requestAnimationFrame(gameLoop);
 		return;
 	}
-	touchStartX = e.touches[0].clientX;
+	if (player) {
+		touchStartX = e.touches[0].clientX;
+	}
 });
 
 canvas.addEventListener('touchmove', (e) => {
 	e.preventDefault();
-	if (touchStartX !== null && !gameOver) {
+	if (touchStartX !== null && !gameOver && player) {
 		const touchX = e.touches[0].clientX;
 		const rect = canvas.getBoundingClientRect();
 		const scaleX = canvas.width / rect.width;
@@ -179,30 +193,88 @@ function initGame() {
 }
 
 // スタートボタンのイベント
+let startBtnClicked = false;
+
+function handleStartGame(e) {
+	console.log('handleStartGame called', e);
+	if (startBtnClicked) {
+		console.log('Already clicked, returning');
+		return;
+	}
+	startBtnClicked = true;
+	
+	if (e) {
+		e.preventDefault();
+		e.stopPropagation();
+	}
+	
+	console.log('Initializing game...');
+	initGame();
+	lastTime = performance.now();
+	console.log('Starting game loop...');
+	requestAnimationFrame(gameLoop);
+	
+	setTimeout(() => { startBtnClicked = false; }, 500);
+}
+
 if (startBtn) {
-	startBtn.addEventListener('click', () => {
-		initGame();
-		lastTime = performance.now();
-		gameLoop(lastTime);
+	console.log('startBtn found:', startBtn);
+	startBtn.onclick = handleStartGame;
+	startBtn.addEventListener('click', handleStartGame);
+	startBtn.addEventListener('touchend', handleStartGame);
+	startBtn.addEventListener('touchstart', (e) => {
+		console.log('startBtn touchstart');
 	});
+} else {
+	console.error('startBtn not found!');
 }
 
 // ゲームルールボタンのイベント
+let rulesBtnClicked = false;
+
+function handleShowRules(e) {
+	if (rulesBtnClicked) return;
+	rulesBtnClicked = true;
+	
+	if (e) {
+		e.preventDefault();
+		e.stopPropagation();
+	}
+	
+	if (instructions) instructions.style.display = 'block';
+	if (buttonGroup) buttonGroup.style.display = 'none';
+	if (backBtn) backBtn.style.display = 'block';
+	
+	setTimeout(() => { rulesBtnClicked = false; }, 500);
+}
+
 if (rulesBtn) {
-	rulesBtn.addEventListener('click', () => {
-		if (instructions) instructions.style.display = 'block';
-		if (buttonGroup) buttonGroup.style.display = 'none';
-		if (backBtn) backBtn.style.display = 'block';
-	});
+	rulesBtn.addEventListener('click', handleShowRules);
+	rulesBtn.addEventListener('touchend', handleShowRules);
 }
 
 // 戻るボタンのイベント
+let backBtnClicked = false;
+
+function handleBackToTitle(e) {
+	if (backBtnClicked) return;
+	backBtnClicked = true;
+	
+	if (e) {
+		e.preventDefault();
+		e.stopPropagation();
+	}
+	
+	if (instructions) instructions.style.display = 'none';
+	if (buttonGroup) buttonGroup.style.display = 'flex';
+	if (backBtn) backBtn.style.display = 'none';
+	
+	setTimeout(() => { backBtnClicked = false; }, 500);
+}
+
 if (backBtn) {
-	backBtn.addEventListener('click', () => {
-		if (instructions) instructions.style.display = 'none';
-		if (buttonGroup) buttonGroup.style.display = 'flex';
-		if (backBtn) backBtn.style.display = 'none';
-	});
+	backBtn.addEventListener('click', handleBackToTitle);
+	backBtn.addEventListener('touchend', handleBackToTitle);
 }
 
 document.addEventListener('keydown', (e) => {
@@ -235,6 +307,8 @@ document.addEventListener('keyup', (e) => {
 
 restartBtn.addEventListener('click', () => {
 	initGame();
+	lastTime = performance.now();
+	requestAnimationFrame(gameLoop);
 });
 
 backToTitleBtn.addEventListener('click', () => {
