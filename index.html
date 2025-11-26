@@ -17,12 +17,11 @@ body {
 #gameContainer {
 	display: flex;
 	flex-direction: column;
-	align-items: flex-start;
+	align-items: center;
 	justify-content: flex-start;
 	height: 100vh;
 	padding-top: 5px;
 	padding-bottom: 80px;
-	padding-left: 15px;
 	box-sizing: border-box;
 	overflow: hidden;
 }
@@ -35,10 +34,15 @@ canvas {
 #score { 
 	font-size: clamp(14px, 3.5vw, 18px); 
 	margin: 3px; 
-	line-height: 1.4;
+	line-height: 1.6;
 }
 #score div {
-	margin: 2px 0;
+	margin: 4px 0;
+}
+#score .current-score {
+	font-size: clamp(18px, 4.5vw, 24px);
+	font-weight: bold;
+	color: #0ff;
 }
 h1 { font-size: 22px; margin: 5px; }
 #restartBtn, #backToTitleBtn {
@@ -55,7 +59,10 @@ h1 { font-size: 22px; margin: 5px; }
 }
 #backToTitleBtn {
 	background: #999;
-	margin-left: 10px;
+	margin-left: 0;
+}
+#restartBtn, #backToTitleBtn {
+	margin: 5px;
 }
 #restartBtn:active {
 	background: #0aa;

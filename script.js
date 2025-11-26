@@ -65,7 +65,7 @@ const BULLET_SPEED = 720; //弾の速度（ピクセル/秒）
 const MAX_MAGAZINES = 5; // 最大マガジン数
 const MAGAZINE_SIZE = 20; // マガジンの弾数
 const RELOAD_TIME = 2000; // リロード時間（ミリ秒）
-const INVINCIBLE_TIME = 5; // 無敵時間（秒）
+const INVINCIBLE_TIME = 10; // 無敵時間（秒）
 
 let remainingMagazines = MAX_MAGAZINES; // 残りマガジン数
 let magazineItems = []; // マガジンアイテムの配列
@@ -73,7 +73,7 @@ let specialItems = []; // 特殊アイテムの配列
 let isInvincible = false; // 無敵状態かどうか
 let invincibleTimer = 0; // 無敵時間の残り
 
-let player = null, bullets, enemies, score, gameOver, enemyTimer;
+let player = null, bullets, soldiers, score, gameOver, soldierTimer; // 一般兵
 let specialItemTimer = 0; // 特殊アイテム用タイマー
 let lastTime = 0; // デルタタイム計算用
 let playTime = 0; // プレイ時間（秒）
@@ -167,10 +167,10 @@ canvas.addEventListener('touchend', (e) => {
 	touchStartX = null;
 });
 
-let badItems = [];
-function spawnBadItem() {
+let bomberSoldiers = []; // 爆弾兵
+function spawnBomberSoldier() { // 爆弾兵をスポーン
     const x = Math.random() * (canvas.width - 40);
-    badItems.push({ x, y: -40, width: 40, height: 40, speed: 180 }); // 速度を秒速に変更（ピクセル/秒）
+    bomberSoldiers.push({ x, y: -40, width: 40, height: 40, speed: 180 }); // 速度を秒速に変更（ピクセル/秒）
 }
 
 function isOverlap(x, y, arr) {
@@ -191,10 +191,11 @@ function initGame() {
 		speed: 300 // 速度を秒速に変更（ピクセル/秒）
 	};
 	bullets = [];
-	enemies = [];
+	soldiers = []; // 一般兵の配列
+	bomberSoldiers = []; // 爆弾兵の配列
 	score = 0;
 	gameOver = false;
-	enemyTimer = 0;
+	soldierTimer = 0; // 一般兵のスポーンタイマー
 	specialItemTimer = 0; // 特殊アイテムタイマーをリセット
 	currentAmmo = MAGAZINE_SIZE;
 	isReloading = false;
@@ -356,22 +357,13 @@ function spawnSpecialItem() {
 	specialItems.push({ x, y, width: 35, height: 35, speed: 150 }); // ピクセル/秒
 }
 
-function spawnEnemy() {
+function spawnSoldier() { // 一般兵をスポーン
 	let x,y = -40,tries = 0;
     do {
         x = Math.random() * (canvas.width - 40);
         tries++;
-    } while (isOverlap(x, y, enemies) && tries < 10);
-	enemies.push({ x, y: -40, width: 40, height: 40, speed: 240 }); // 速度を秒速に変更（ピクセル/秒）
-}
-
-function spawnBadItem() {
-    let x,y = -40,tries = 0;
-    do {
-        x = Math.random() * (canvas.width - 40);
-        tries++;
-    } while (isOverlap(x, y, badItems) && tries < 10);
-    badItems.push({ x, y: -40, width: 40, height: 40, speed: 180 }); // 速度を秒速に変更（ピクセル/秒）
+    } while (isOverlap(x, y, soldiers) && tries < 10);
+	soldiers.push({ x, y: -40, width: 40, height: 40, speed: 240 }); // 速度を秒速に変更（ピクセル/秒）
 }
 
 function update(deltaTime) {
@@ -380,9 +372,9 @@ function update(deltaTime) {
 		playTime += deltaTime;
 	}
 	
-    //badItemsの移動（デルタタイム適用）
-    badItems.forEach(item => item.y += item.speed * deltaTime);
-    badItems = badItems.filter(item => item.y < canvas.height);
+    // 爆弾兵の移動（デルタタイム適用）
+    bomberSoldiers.forEach(bomber => bomber.y += bomber.speed * deltaTime);
+    bomberSoldiers = bomberSoldiers.filter(bomber => bomber.y < canvas.height);
 
 	// マガジンアイテムの移動（デルタタイム適用）
 	magazineItems.forEach(item => item.y += item.speed * deltaTime);
@@ -446,15 +438,15 @@ function update(deltaTime) {
 
 	//弾とbaditemの当たり判定
 	bullets.forEach((bullet, bIdx) => {
-		badItems.forEach((item, iIdx) => {
+		bomberSoldiers.forEach((bomber, bIdx2) => { // 爆弾兵
 			if (
-				bullet.x < item.x + item.width &&
-				bullet.x + bullet.width > item.x &&
-				bullet.y < item.y + item.height &&
-				bullet.y + bullet.height > item.y
+				bullet.x < bomber.x + bomber.width &&
+				bullet.x + bullet.width > bomber.x &&
+				bullet.y < bomber.y + bomber.height &&
+				bullet.y + bullet.height > bomber.y
 			) {
 				bullets.splice(bIdx, 1);
-				badItems.splice(iIdx, 1);
+				bomberSoldiers.splice(bIdx2, 1);
 				if (isInvincible) { // 無敵状態ならスコア増加
 					score += 10;
 				} else { // 無敵状態でなければスコア減少
@@ -500,40 +492,67 @@ function update(deltaTime) {
 	bullets.forEach(bullet => bullet.y -= bullet.speed * deltaTime);
 	bullets = bullets.filter(bullet => bullet.y + bullet.height > 0);
 
-	// 敵の移動（デルタタイム適用）
-	enemies.forEach(enemy => enemy.y += enemy.speed * deltaTime);
-	enemies = enemies.filter(enemy => enemy.y < canvas.height);
+	// 一般兵の移動（デルタタイム適用）
+	soldiers.forEach(soldier => soldier.y += soldier.speed * deltaTime);
+	soldiers = soldiers.filter(soldier => soldier.y < canvas.height);
 
-	// 弾と敵の当たり判定
+	// 弾と一般兵の当たり判定
 	bullets.forEach((bullet, bIdx) => {
-		enemies.forEach((enemy, eIdx) => {
+		soldiers.forEach((soldier, sIdx) => {
 			if (
-				bullet.x < enemy.x + enemy.width &&
-				bullet.x + bullet.width > enemy.x &&
-				bullet.y < enemy.y + enemy.height &&
-				bullet.y + bullet.height > enemy.y
+				bullet.x < soldier.x + soldier.width &&
+				bullet.x + bullet.width > soldier.x &&
+				bullet.y < soldier.y + soldier.height &&
+				bullet.y + bullet.height > soldier.y
 			) {
-				const enemyX = enemy.x;
-				const enemyY = enemy.y;
+				const soldierX = soldier.x;
+				const soldierY = soldier.y;
 				bullets.splice(bIdx, 1);
-				enemies.splice(eIdx, 1);
+				soldiers.splice(sIdx, 1);
 				score += 10;
 
 				// 一定確率でマガジンアイテムをドロップ（最大数未満の場合のみ）
 				if (remainingMagazines < MAX_MAGAZINES && Math.random() < 0.1) { // 10%の確率
-					spawnMagazineItem(enemyX, enemyY);
+					spawnMagazineItem(soldierX, soldierY);
 				}
 			}
 		});
 	});
 
-	// 敵とプレイヤーの当たり判定
-	enemies.forEach(enemy => {
+	// 一般兵とプレイヤーの当たり判定
+	soldiers.forEach(soldier => {
 		if (
-			player.x < enemy.x + enemy.width &&
-			player.x + player.width > enemy.x &&
-			player.y < enemy.y + enemy.height &&
-			player.y + player.height > enemy.y
+			player.x < soldier.x + soldier.width &&
+			player.x + player.width > soldier.x &&
+			player.y < soldier.y + soldier.height &&
+			player.y + player.height > soldier.y
+		) {
+			if (!isInvincible) { // 無敵状態でなければゲームオーバー
+				gameOver = true;
+				// 最高スコア更新
+				if (score > highScore) {
+					highScore = score;
+					localStorage.setItem('highScore', highScore);
+				}
+				// 最高生存時間更新
+				if (playTime > highTime) {
+					highTime = playTime;
+					localStorage.setItem('highTime', highTime);
+				}
+				restartBtn.style.display = 'inline-block';
+				backToTitleBtn.style.display = 'inline-block';
+				if (controlsDiv) controlsDiv.style.display = 'none'; // 操作ボタンを非表示
+			}
+		}
+	});
+
+	// 爆弾兵とプレイヤーの当たり判定
+	bomberSoldiers.forEach(bomber => {
+		if (
+			player.x < bomber.x + bomber.width &&
+			player.x + player.width > bomber.x &&
+			player.y < bomber.y + bomber.height &&
+			player.y + player.height > bomber.y
 		) {
 			if (!isInvincible) { // 無敵状態でなければゲームオーバー
 				gameOver = true;
@@ -558,10 +577,17 @@ function update(deltaTime) {
 function draw() {
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    //badItemsの描画
-    ctx.fillStyle = '#ff0';
-    badItems.forEach(item => {
-        ctx.fillRect(item.x, item.y, item.width, item.height);
+    // 爆弾兵の描画
+    ctx.fillStyle = '#ff0'; // 黄色
+    bomberSoldiers.forEach(bomber => {
+        ctx.fillRect(bomber.x, bomber.y, bomber.width, bomber.height);
+        // 爆弾兵の四角の中に「爆」と表示
+        ctx.fillStyle = '#f00'; // 赤文字
+        ctx.font = 'bold 24px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('爆', bomber.x + bomber.width / 2, bomber.y + bomber.height / 2);
+        ctx.fillStyle = '#ff0'; // 色を戻す
     }); 
 
 	// プレイヤー
@@ -600,10 +626,17 @@ function draw() {
 		ctx.fillRect(bullet.x, bullet.y, bullet.width, bullet.height);
 	});
 
-	// 敵
+	// 一般兵（赤い敵）
 	ctx.fillStyle = '#f00';
-	enemies.forEach(enemy => {
-		ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
+	soldiers.forEach(soldier => {
+		ctx.fillRect(soldier.x, soldier.y, soldier.width, soldier.height);
+		// 一般兵の四角の中に「兵」と表示
+		ctx.fillStyle = '#fff';
+		ctx.font = 'bold 24px sans-serif';
+		ctx.textAlign = 'center';
+		ctx.textBaseline = 'middle';
+		ctx.fillText('兵', soldier.x + soldier.width / 2, soldier.y + soldier.height / 2);
+		ctx.fillStyle = '#f00'; // 色を戻す
 	});
 
 	// スコア表示
@@ -617,15 +650,17 @@ function draw() {
 	
 	const scoreDiv = document.getElementById('score');
 	scoreDiv.innerHTML = `
-		<div>スコア: ${score} | 最高スコア: ${highScore}</div>
-		<div>時間: ${timeText} | 最高時間: ${highTimeText}</div>
+		<div class="current-score">スコア: ${score}</div>
+		<div>時間: ${timeText} | 最高: ${highScore} / ${highTimeText}</div>
 	`;
 
 	// 残弾表示（キャンバス上）
 	ctx.fillStyle = '#fff';
-	ctx.font = '20px sans-serif';
+	ctx.font = `${Math.max(14, Math.min(20, canvas.width / 24))}px sans-serif`; // 画面サイズに応じたフォント
+	ctx.textAlign = 'left';
+	ctx.textBaseline = 'top';
 	const ammoText = isReloading ? 'リロード中...' : `弾: ${currentAmmo} / ${MAGAZINE_SIZE} 残りマガジン: ${remainingMagazines}`;
-	ctx.fillText(ammoText, 10, 30);
+	ctx.fillText(ammoText, 10, 10);
 
 	// 弾薬警告表示
 	if (!gameOver && !isReloading) {
@@ -649,8 +684,12 @@ function draw() {
 	// ゲームオーバー
 	if (gameOver) {
 		ctx.fillStyle = '#fff';
-		ctx.font = '48px sans-serif';
-		ctx.fillText('GAME OVER', canvas.width / 2 - 140, canvas.height / 2);
+		ctx.font = `bold ${Math.min(48, canvas.width / 10)}px sans-serif`; // 画面サイズに応じたフォント
+		ctx.textAlign = 'center';
+		ctx.textBaseline = 'middle';
+		ctx.fillText('GAME OVER', canvas.width / 2, canvas.height / 2);
+		ctx.textAlign = 'left'; // テキスト配置を戻す
+		ctx.textBaseline = 'alphabetic'; // ベースラインを戻す
 	}
 
 	// マガジンアイテムの描画
@@ -695,17 +734,17 @@ function gameLoop(currentTime) {
 	update(deltaTime);
 	draw();
 	if (!gameOver) {
-		enemyTimer += deltaTime * 1000; // ミリ秒単位で加算
+		soldierTimer += deltaTime * 1000; // ミリ秒単位で加算
 		specialItemTimer += deltaTime * 1000; // 特殊アイテムタイマー
 		
-		if (enemyTimer >= 1000) { // 1秒ごと
-			spawnEnemy();
-			enemyTimer -= 1000;
+		if (soldierTimer >= 1000) { // 1秒ごとに一般兵をスポーン
+			spawnSoldier();
+			soldierTimer -= 1000;
 		}
-        if (enemyTimer % 2000 < deltaTime * 1000) spawnBadItem(); // 約2秒ごと
+        if (soldierTimer % 2000 < deltaTime * 1000) spawnBomberSoldier(); // 約2秒ごとに爆弾兵をスポーン
         
-        // 特殊アイテムは30秒ごと
-        if (specialItemTimer >= 30000) {
+        // 特殊アイテムは15秒ごと
+        if (specialItemTimer >= 15000) {
         	spawnSpecialItem();
         	specialItemTimer = 0;
         }
