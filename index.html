@@ -154,9 +154,10 @@ h1 { font-size: 22px; margin: 5px; }
 }
 #controls .control-group:last-child {
 	position: fixed;
-	bottom: 160px;
+	bottom: 100px; /* 初期値、JavaScriptで動的に変更される */
 	right: 15px;
 	flex-direction: column;
+	transition: bottom 0.3s ease;
 }
 .control-group {
 	display: flex;

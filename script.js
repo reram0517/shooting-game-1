@@ -36,12 +36,26 @@ function resizeCanvas() {
 		player.x = Math.min(player.x * xRatio, canvas.width - player.width);
 		player.y = Math.min(player.y * yRatio, canvas.height - player.height);
 	}
+	
+	// 右側のコントロールボタンの位置を更新
+	updateControlsPosition();
+}
+
+// 右側のボタン位置をキャンバスの下端に合わせる
+function updateControlsPosition() {
+	const rightControls = document.querySelector('#controls .control-group:last-child');
+	if (rightControls) {
+		const canvasRect = canvas.getBoundingClientRect();
+		const bottomOffset = window.innerHeight - (canvasRect.top + canvasRect.height) + 10;
+		rightControls.style.bottom = bottomOffset + 'px';
+	}
 }
 
 // 初期サイズ設定とリサイズイベント
 // resizeCanvas(); // 初回実行を削除（playerがnullのため）
 canvas.width = Math.floor(window.innerWidth - 120);
 canvas.height = Math.floor(window.innerHeight - 250); // ボタンのスペースを確保
+updateControlsPosition(); // ボタン位置を初期設定
 window.addEventListener('resize', resizeCanvas);
 
 const BULLET_W = 20; //弾の幅
