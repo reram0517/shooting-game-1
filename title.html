@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>シューティングゲーム - タイトル</title>
+<style>
+body { 
+	text-align: center; 
+	background: #111; 
+	color: #fff; 
+	margin: 0;
+	padding: 0;
+	overflow: hidden;
+	touch-action: auto;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 100vh;
+}
+#startScreen {
+	width: 100%;
+	height: 100%;
+	background: rgba(0, 0, 0, 0.95);
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	overflow-y: auto;
+	padding: 20px;
+	box-sizing: border-box;
+}
+#startScreen h2 {
+	font-size: clamp(20px, 7vw, 36px);
+	margin-bottom: 20px;
+	color: #0ff;
+	white-space: nowrap;
+}
+#titleStats {
+	margin: 10px 0;
+	color: #fff;
+	font-size: 16px;
+}
+#titleStats p {
+	margin: 5px 0;
+}
+.button-group {
+	display: flex;
+	gap: 20px;
+	flex-wrap: wrap;
+	justify-content: center;
+}
+button {
+	font-size: 24px;
+	padding: 20px 50px;
+	background: #0ff;
+	color: #000;
+	border: none;
+	border-radius: 10px;
+	cursor: pointer;
+	font-weight: bold;
+	touch-action: manipulation;
+}
+#rulesBtn {
+	background: #0a0;
+}
+button:active {
+	opacity: 0.7;
+}
+#difficultySelect {
+	margin: 20px 0;
+	display: none;
+}
+#difficultySelect p {
+	color: #0ff;
+	font-size: 18px;
+	margin-bottom: 10px;
+}
+.difficultyBtn {
+	padding: 15px 30px;
+	font-size: 18px;
+	background: #0f0;
+	color: #000;
+	border: none;
+	border-radius: 10px;
+	cursor: pointer;
+	font-weight: bold;
+}
+.difficultyBtn[data-difficulty="normal"] {
+	background: #0ff;
+	border: 3px solid #fff;
+}
+.difficultyBtn[data-difficulty="hard"] {
+	background: #f00;
+	color: #fff;
+}
+#playBtn {
+	padding: 20px 50px;
+	font-size: 24px;
+	background: #0ff;
+	color: #000;
+	margin-top: 10px;
+}
+#backToMenuBtn {
+	margin-top: 15px;
+	padding: 12px 30px;
+	font-size: 16px;
+	background: #666;
+	color: #fff;
+}
+</style>
+</head>
+<body>
+<div id="startScreen">
+	<h2>🚀 シューティングゲーム 🚀</h2>
+	<div id="titleStats">
+		<p>最高スコア: <span id="titleHighScore">0</span></p>
+		<p>最高時間: <span id="titleHighTime">0:00</span></p>
+	</div>
+	<div id="mainMenu">
+		<div class="button-group">
+			<button id="startBtn">ゲーム選択</button>
+			<a href="rules.html" style="text-decoration: none;"><button id="rulesBtn">ゲームルール</button></a>
+		</div>
+	</div>
+	<div id="difficultySelect">
+		<p>難易度を選択してスタート</p>
+		<div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; margin-bottom: 20px;">
+			<button class="difficultyBtn" data-difficulty="easy">イージー</button>
+			<button class="difficultyBtn" data-difficulty="normal">ノーマル</button>
+			<button class="difficultyBtn" data-difficulty="hard">ハード</button>
+		</div>
+		<button id="playBtn">ゲームスタート</button>
+		<button id="backToMenuBtn">タイトルに戻る</button>
+	</div>
+</div>
+<script>
+// LocalStorageから記録を読み込み
+function loadStats() {
+	const highScore = localStorage.getItem('highScore') || 0;
+	const highTime = localStorage.getItem('highTime') || 0;
+	document.getElementById('titleHighScore').textContent = highScore;
+	
+	const highMinutes = Math.floor(highTime / 60);
+	const highSeconds = Math.floor(highTime % 60);
+	document.getElementById('titleHighTime').textContent = `${highMinutes}:${highSeconds.toString().padStart(2, '0')}`;
+}
+
+loadStats();
+
+let currentDifficulty = 'normal';
+const startBtn = document.getElementById('startBtn');
+const playBtn = document.getElementById('playBtn');
+const mainMenu = document.getElementById('mainMenu');
+const difficultySelect = document.getElementById('difficultySelect');
+const backToMenuBtn = document.getElementById('backToMenuBtn');
+const difficultyBtns = document.querySelectorAll('.difficultyBtn');
+
+// ゲーム選択ボタン
+startBtn.addEventListener('click', () => {
+	mainMenu.style.display = 'none';
+	difficultySelect.style.display = 'block';
+});
+
+// 難易度選択
+difficultyBtns.forEach(btn => {
+	btn.addEventListener('click', () => {
+		currentDifficulty = btn.getAttribute('data-difficulty');
+		difficultyBtns.forEach(b => b.style.border = 'none');
+		btn.style.border = '3px solid #fff';
+	});
+});
+
+// ゲームスタートボタン
+playBtn.addEventListener('click', () => {
+	localStorage.setItem('selectedDifficulty', currentDifficulty);
+	window.location.href = 'game.html';
+});
+
+// タイトルに戻るボタン
+backToMenuBtn.addEventListener('click', () => {
+	difficultySelect.style.display = 'none';
+	mainMenu.style.display = 'block';
+});
+</script>
+</body>
+</html>
