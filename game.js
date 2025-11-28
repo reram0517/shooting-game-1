@@ -221,9 +221,11 @@ if (reloadBtn) {
 	});
 }
 
-// キャンバスタッチ操作（スワイプで移動、タップで射撃）
+// キャンバスタッチ操作（ドラッグで移動）
 let touchStartX = null;
 let touchStartY = null;
+let isTouching = false;
+
 canvas.addEventListener('touchstart', (e) => {
 	e.preventDefault();
 	if (gameOver) {
@@ -232,29 +234,53 @@ canvas.addEventListener('touchstart', (e) => {
 		requestAnimationFrame(gameLoop);
 		return;
 	}
-	if (player) {
-		touchStartX = e.touches[0].clientX;
-		touchStartY = e.touches[0].clientY;
+	if (player && !isPaused) {
+		isTouching = true;
+		const touch = e.touches[0];
+		const rect = canvas.getBoundingClientRect();
+		const scaleX = canvas.width / rect.width;
+		const scaleY = canvas.height / rect.height;
+		const relativeX = (touch.clientX - rect.left) * scaleX;
+		const relativeY = (touch.clientY - rect.top) * scaleY;
+		
+		// プレイヤーの中心をタッチ位置に合わせる
+		player.x = relativeX - player.width / 2;
+		player.y = relativeY - player.height / 2;
+		
+		touchStartX = touch.clientX;
+		touchStartY = touch.clientY;
 	}
 });
 
 canvas.addEventListener('touchmove', (e) => {
 	e.preventDefault();
-	if (touchStartX !== null && touchStartY !== null && !gameOver && player) {
-		const touchX = e.touches[0].clientX;
-		const touchY = e.touches[0].clientY;
+	if (isTouching && !gameOver && !isPaused && player) {
+		const touch = e.touches[0];
 		const rect = canvas.getBoundingClientRect();
 		const scaleX = canvas.width / rect.width;
 		const scaleY = canvas.height / rect.height;
-		const relativeX = (touchX - rect.left) * scaleX;
-		const relativeY = (touchY - rect.top) * scaleY;
+		const relativeX = (touch.clientX - rect.left) * scaleX;
+		const relativeY = (touch.clientY - rect.top) * scaleY;
+		
+		// プレイヤーの中心をタッチ位置に合わせる
 		player.x = relativeX - player.width / 2;
 		player.y = relativeY - player.height / 2;
+		
+		touchStartX = touch.clientX;
+		touchStartY = touch.clientY;
 	}
 });
 
 canvas.addEventListener('touchend', (e) => {
 	e.preventDefault();
+	isTouching = false;
+	touchStartX = null;
+	touchStartY = null;
+});
+
+canvas.addEventListener('touchcancel', (e) => {
+	e.preventDefault();
+	isTouching = false;
 	touchStartX = null;
 	touchStartY = null;
 });
