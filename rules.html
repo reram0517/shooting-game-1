@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>ゲームルール - シューティングゲーム</title>
+<style>
+body { 
+	text-align: center; 
+	background: #111; 
+	color: #fff; 
+	margin: 0;
+	padding: 20px;
+	font-family: sans-serif;
+}
+.container {
+	max-width: 600px;
+	margin: 0 auto;
+	padding: 20px;
+}
+h1 {
+	font-size: clamp(24px, 6vw, 36px);
+	color: #0ff;
+	margin-bottom: 30px;
+}
+.rules-section {
+	background: rgba(255, 255, 255, 0.1);
+	border: 2px solid #0ff;
+	border-radius: 15px;
+	padding: 20px;
+	margin-bottom: 20px;
+	text-align: left;
+}
+.rules-section h2 {
+	color: #0ff;
+	font-size: clamp(18px, 4vw, 24px);
+	margin-bottom: 15px;
+	text-align: center;
+}
+.rules-section p {
+	font-size: clamp(14px, 3.5vw, 18px);
+	line-height: 1.8;
+	margin: 10px 0;
+}
+.icon {
+	display: inline-block;
+	width: 20px;
+	height: 20px;
+	vertical-align: middle;
+	margin-right: 5px;
+	border: 1px solid #fff;
+}
+.icon.red {
+	background: #f00;
+}
+.icon.yellow {
+	background: #ff0;
+}
+.icon.green {
+	background: #0f0;
+}
+.icon.purple {
+	background: #d800ff;
+	border: 2px solid #fff;
+	border-radius: 50%;
+}
+.highlight {
+	color: #f00;
+	font-weight: bold;
+}
+.backBtn {
+	display: inline-block;
+	margin-top: 30px;
+	padding: 15px 40px;
+	font-size: 20px;
+	background: #0ff;
+	color: #000;
+	border: none;
+	border-radius: 10px;
+	cursor: pointer;
+	font-weight: bold;
+	text-decoration: none;
+}
+.backBtn:active {
+	background: #0aa;
+}
+</style>
+</head>
+<body>
+<div class="container">
+	<h1>🎮 ゲームルール 🎮</h1>
+	
+	<div class="rules-section">
+		<h2>【目的】</h2>
+		<p>敵を撃ち落としてスコアを稼ごう！</p>
+        <p>敵にあたると<span class="highlight">ゲームオーバー</span></p>
+        <p>イージーモードでは爆弾兵にあたっても死なない！</p>
+
+	</div>
+
+    <div class="rules-section" >
+        <h2>簡単ルール説明</h2>
+        <p><span class="icon red"></span>赤い一般兵を打ち落としてスコアを稼げ！
+        <p><span class="icon red"></span>赤の一般兵と<span class="icon yellow">
+        </span>黄色の爆弾兵にあたると<span class="highlight">ゲームオーバー</span><br>ただしイージーモードでは爆弾兵にあたっても死なない</p>
+        <p><span class="icon green"></span>緑のマガジン補充アイテムで弾を補充</p>
+        <p><span class="icon purple"></span>紫の無敵アイテムで無敵モードに突入！</p>
+        
+    </div>
+	
+	<div class="rules-section">
+		<h2>【難易度】</h2>
+		<p><strong>イージー:</strong> 敵の出現率は標準で爆弾兵に<br>あたっても死なない</p>
+		<p><strong>ノーマル:</strong> 標準的な出現速度</p>
+		<p><strong>ハード:</strong> 敵の出現速度が速い</p>
+	</div>
+	
+	<div class="rules-section">
+		<h2>【敵】</h2>
+		<p><span class="icon red"></span>赤色の四角: 一般兵（10点）</p>
+		<p><span class="icon yellow"></span>黄色の四角: 爆弾兵（－20点）<br>→イージー以外の難易度で撃つと爆発</p>
+	</div>
+	
+	<div class="rules-section">
+		<h2>【操作方法】</h2>
+		<p><strong>PC:</strong><br>
+		矢印キー: 移動<br>
+		スペース: 射撃<br>
+		R: リロード</p>
+		<p><strong>スマホ:</strong><br>
+		画面下のボタンで操作</p>
+	</div>
+	
+	<div class="rules-section">
+		<h2>【アイテム】</h2>
+		<p><span class="icon green"></span>緑色: マガジン補充<br>
+		→残りマガジンが４以下になると一般兵を倒したときに発生
+		<p><span class="icon purple"></span>紫の丸: 拾うと無敵モード<br>
+		→スコアが500増えるごとに発生</p>
+	</div>
+	
+	<div class="rules-section">
+		<h2>【無敵モード】</h2>
+		<p>弾が無限で敵にあたっても死なない！！</p>
+        <p>持続時間は５秒間</p>
+        <p>爆弾兵を撃っても死なないしポイントが10pt増える！</p>
+
+	</div>
+	
+	<div class="rules-section">
+		<h2>【ヒント】</h2>
+		<p>弾切れに注意！こまめにリロードしよう</p>
+	</div>
+	
+	<a href="index.html" class="backBtn">タイトルに戻る</a>
+</div>
+</body>
+</html>

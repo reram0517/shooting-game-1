@@ -110,15 +110,7 @@ h1 {
 	color: #0ff;
 	white-space: nowrap;
 }
-#startScreen .instructions {
-	font-size: 16px;
-	margin-bottom: 30px;
-	text-align: center;
-	line-height: 1.8;
-	max-width: 400px;
-	padding: 0 20px;
-	display: none;
-}
+
 .button-group {
 	display: flex;
 	gap: 20px;
@@ -148,24 +140,7 @@ h1 {
 #rulesBtn:active {
 	background: #080;
 }
-#backBtn {
-	font-size: 18px;
-	padding: 12px 30px;
-	background: #666;
-	color: #fff;
-	border: none;
-	border-radius: 10px;
-	cursor: pointer;
-	margin-top: 20px;
-	display: none;
-	touch-action: manipulation;
-	pointer-events: auto;
-	position: relative;
-	z-index: 1000;
-}
-#backBtn:active {
-	background: #444;
-}
+
 #controls {
 	display: none;
 	position: fixed;
@@ -304,7 +279,7 @@ h1 {
 <div id="mainMenu">
 <div class="button-group">
 <button id="startBtn">ゲーム選択</button>
-<button id="rulesBtn">ゲームルール</button>
+<a href="rules.html" style="text-decoration: none;"><button id="rulesBtn">ゲームルール</button></a>
 </div>
 </div>
 <div id="difficultySelect" style="margin: 20px 0; display: none;">
@@ -317,24 +292,6 @@ h1 {
 	<button id="playBtn" style="padding: 20px 50px; font-size: 24px; background: #0ff; color: #000; border: none; border-radius: 10px; cursor: pointer; font-weight: bold;">ゲームスタート</button>
 	<button id="backToMenuBtn" style="margin-top: 15px; padding: 12px 30px; font-size: 16px; background: #666; color: #fff; border: none; border-radius: 10px; cursor: pointer;">タイトルに戻る</button>
 </div>
-<div class="instructions">
-<h3 style="color: #0ff;">ゲームルール</h3>
-<p>【目的】<br>敵を撃ち落としてスコアを稼ごう！</p>
-<p>【敵】<br>
-	<span style="display: inline-block; width: 20px; height: 20px; background: #f00; border: 1px solid #fff; vertical-align: middle; margin-right: 5px;"></span>赤色の四角: 一般兵（10点）
-	<br><span style="display: inline-block; width: 20px; height: 20px; background: #ff0; border: 1px solid #fff; vertical-align: middle; margin-right: 5px;"></span>黄色の四角: 爆弾兵（－20点）
-	<br>→撃つと爆発
-	<br>敵にあたると<span style="color: #f00; font-weight: bold;">ゲームオーバー</span>
-</p>
-<p>【PC操作】<br>矢印キー: 移動<br>スペース: 射撃<br>R: リロード</p>
-<p>【スマホ操作】<br>画面下のボタンで操作</p>
-<p>【アイテム】<br>
-	<span style="display: inline-block; width: 20px; height: 20px; background: #0f0; border: 1px solid #fff; vertical-align: middle; margin-right: 5px;"></span>緑色: マガジン補充<br>→スコアが500増えるごとに発生<br>
-	<span style="display: inline-block; width: 20px; height: 20px; background: #d800ff; border: 2px solid #fff; border-radius: 50%; vertical-align: middle; margin-right: 5px;"></span>紫の丸：拾うと無敵モード<br>→スコアが500増えるごとに発生</p>
-<p>【無敵モード】<br>無敵モード中は弾が無限で<br>敵にあたっても死なない！！</p>
-<p>【ヒント】<br>弾切れに注意！こまめにリロードしよう</p>
-</div>
-<button id="backBtn">戻る</button>
 </div>
 <div id="gameContainer">
 <h1>アーケードシューティングゲーム</h1>
@@ -362,6 +319,7 @@ h1 {
 </div>
 <div id="controls">
 <div class="control-group">
+<button id="ammoTypeBtn" style="width: 65px; height: 50px; font-size: 14px;">通常弾</button>
 <button id="shootBtn">&#x1F52B;</button>
 <button id="reloadBtn">&#x1F504;</button>
 </div>

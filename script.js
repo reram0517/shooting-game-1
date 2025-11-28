@@ -10,8 +10,6 @@ const startScreen = document.getElementById('startScreen');
 const startBtn = document.getElementById('startBtn');
 const playBtn = document.getElementById('playBtn');
 const rulesBtn = document.getElementById('rulesBtn');
-const backBtn = document.getElementById('backBtn');
-const instructions = document.querySelector('.instructions');
 const mainMenu = document.getElementById('mainMenu');
 const difficultySelect = document.getElementById('difficultySelect');
 const backToMenuBtn = document.getElementById('backToMenuBtn');
@@ -21,7 +19,6 @@ console.log('Script loaded');
 console.log('startBtn:', startBtn);
 console.log('playBtn:', playBtn);
 console.log('rulesBtn:', rulesBtn);
-console.log('backBtn:', backBtn);
 
 let gameStarted = false;
 let currentDifficulty = 'normal'; // デフォルトは普通
@@ -104,6 +101,36 @@ canvas.height = Math.floor(Math.max(window.innerHeight - initialBottomSpace, 200
 updateControlsPosition(); // ボタン位置を初期設定
 window.addEventListener('resize', resizeCanvas);
 
+// 弾薬タイプの定義
+const AMMO_TYPES = {
+	normal: {
+		name: '通常弾',
+		width: 20,
+		height: 16,
+		speed: 720,
+		color: '#fff',
+		damage: 1
+	},
+	piercing: {
+		name: '貫通弾',
+		width: 15,
+		height: 20,
+		speed: 900,
+		color: '#0ff',
+		damage: 1,
+		piercing: true
+	},
+	explosive: {
+		name: '爆発弾',
+		width: 25,
+		height: 20,
+		speed: 600,
+		color: '#ff0',
+		damage: 2,
+		explosive: true
+	}
+};
+
 const BULLET_W = 20; //弾の幅
 const BULLET_H = 16; //弾の高さ
 const BULLET_SPEED = 720; //弾の速度（ピクセル/秒）
@@ -112,6 +139,9 @@ const MAX_MAGAZINES = 5; // 最大マガジン数
 const MAGAZINE_SIZE = 20; // マガジンの弾数
 const RELOAD_TIME = 2000; // リロード時間（ミリ秒）
 const INVINCIBLE_TIME = 5; // 無敵時間（秒）
+
+let currentAmmoType = 'normal'; // 現在の弾薬タイプ
+const ammoTypeOrder = ['normal', 'piercing', 'explosive']; // 切り替え順序
 
 let remainingMagazines = MAX_MAGAZINES; // 残りマガジン数
 let magazineItems = []; // マガジンアイテムの配列
@@ -155,10 +185,50 @@ document.addEventListener('keyup', (e) => { keys[e.key] = false; });
 // タッチ操作
 const shootBtn = document.getElementById('shootBtn');
 const reloadBtn = document.getElementById('reloadBtn');
+const ammoTypeBtn = document.getElementById('ammoTypeBtn');
+
+// 弾薬切り替え関数
+function switchAmmoType() {
+	const currentIndex = ammoTypeOrder.indexOf(currentAmmoType);
+	const nextIndex = (currentIndex + 1) % ammoTypeOrder.length;
+	currentAmmoType = ammoTypeOrder[nextIndex];
+	
+	// ボタンのテキストを更新
+	if (ammoTypeBtn) {
+		ammoTypeBtn.textContent = AMMO_TYPES[currentAmmoType].name;
+		// 弾薬タイプに応じて色を変える
+		if (currentAmmoType === 'normal') {
+			ammoTypeBtn.style.background = 'rgba(255, 255, 255, 0.3)';
+			ammoTypeBtn.style.borderColor = '#fff';
+		} else if (currentAmmoType === 'piercing') {
+			ammoTypeBtn.style.background = 'rgba(0, 255, 255, 0.3)';
+			ammoTypeBtn.style.borderColor = '#0ff';
+		} else if (currentAmmoType === 'explosive') {
+			ammoTypeBtn.style.background = 'rgba(255, 255, 0, 0.3)';
+			ammoTypeBtn.style.borderColor = '#ff0';
+		}
+	}
+}
 
 if (shootBtn) {
 	shootBtn.addEventListener('touchstart', (e) => { e.preventDefault(); touchControls.shoot = true; });
 	shootBtn.addEventListener('touchend', (e) => { e.preventDefault(); touchControls.shoot = false; });
+}
+
+// 弾薬切り替えボタン
+if (ammoTypeBtn) {
+	ammoTypeBtn.addEventListener('touchstart', (e) => {
+		e.preventDefault();
+		if (!gameOver) {
+			switchAmmoType();
+		}
+	});
+	ammoTypeBtn.addEventListener('click', (e) => {
+		e.preventDefault();
+		if (!gameOver) {
+			switchAmmoType();
+		}
+	});
 }
 
 if (reloadBtn) {
@@ -329,55 +399,7 @@ difficultyBtns.forEach(btn => {
 	});
 });
 
-// ゲームルールボタンのイベント
-let rulesBtnClicked = false;
-
-function handleShowRules(e) {
-	if (rulesBtnClicked) return;
-	rulesBtnClicked = true;
-	
-	if (e) {
-		e.preventDefault();
-		e.stopPropagation();
-	}
-	
-	if (instructions) instructions.style.display = 'block';
-	if (mainMenu) mainMenu.style.display = 'none';
-	if (backBtn) backBtn.style.display = 'block';
-	if (difficultySelect) difficultySelect.style.display = 'none';
-	
-	setTimeout(() => { rulesBtnClicked = false; }, 500);
-}
-
-if (rulesBtn) {
-	rulesBtn.addEventListener('click', handleShowRules);
-	rulesBtn.addEventListener('touchend', handleShowRules);
-}
-
-// 戻るボタンのイベント
-let backBtnClicked = false;
-
-function handleBackToTitle(e) {
-	if (backBtnClicked) return;
-	backBtnClicked = true;
-	
-	if (e) {
-		e.preventDefault();
-		e.stopPropagation();
-	}
-	
-	if (instructions) instructions.style.display = 'none';
-	if (mainMenu) mainMenu.style.display = 'block';
-	if (backBtn) backBtn.style.display = 'none';
-	if (difficultySelect) difficultySelect.style.display = 'none';
-	
-	setTimeout(() => { backBtnClicked = false; }, 500);
-}
-
-if (backBtn) {
-	backBtn.addEventListener('click', handleBackToTitle);
-	backBtn.addEventListener('touchend', handleBackToTitle);
-}
+// ゲームルールボタンは削除（別ページへのリンクになったため）
 
 // 難易度選択画面からメインメニューに戻るボタンのイベント
 if (backToMenuBtn) {
@@ -414,6 +436,10 @@ document.addEventListener('keydown', (e) => {
 	        isReloading = true;
 	        reloadTimer = RELOAD_TIME;
 	    }
+	}
+	// 弾薬切り替え（Tキー）
+	if(!gameOver && (e.key === 't' || e.key === 'T')) {
+		switchAmmoType();
 	}
 });
 
@@ -610,6 +636,7 @@ function update(deltaTime) {
 
 	//弾とbaditemの当たり判定
 	bullets.forEach((bullet, bIdx) => {
+		let bulletRemoved = false;
 		bomberSoldiers.forEach((bomber, bIdx2) => { // 爆弾兵
 			if (
 				bullet.x < bomber.x + bomber.width &&
@@ -617,10 +644,15 @@ function update(deltaTime) {
 				bullet.y < bomber.y + bomber.height &&
 				bullet.y + bullet.height > bomber.y
 			) {
-				bullets.splice(bIdx, 1);
+				// 貫通弾でなければ弾を削除
+				if (!bullet.piercing && !bulletRemoved) {
+					bullets.splice(bIdx, 1);
+					bulletRemoved = true;
+				}
+				
 				bomberSoldiers.splice(bIdx2, 1);
 				if (isInvincible) { // 無敵状態ならスコア増加
-					score += 10;
+					score += 10 * (bullet.damage || 1);
 				} else { // 無敵状態でなければスコア減少
 					score -= 20;
 				}
@@ -637,12 +669,18 @@ function update(deltaTime) {
 	if(keys[' '] || touchControls.shoot) {
 		if(shootCooldown <= 0 && !isReloading) {
 			if (currentAmmo > 0 || isInvincible) { // 無敵中は弾無限
+				const ammo = AMMO_TYPES[currentAmmoType];
 				bullets.push({
-				 x: player.x + player.width / 2 - BULLET_W / 2,
+				 x: player.x + player.width / 2 - ammo.width / 2,
 				 y: player.y,
-				width: BULLET_W,
-				height: BULLET_H,
-				 speed: BULLET_SPEED
+				width: ammo.width,
+				height: ammo.height,
+				 speed: ammo.speed,
+				 color: ammo.color,
+				 damage: ammo.damage,
+				 piercing: ammo.piercing || false,
+				 explosive: ammo.explosive || false,
+				 type: currentAmmoType
 							});
 				if (!isInvincible) { // 無敵中でなければ弾を消費
 					currentAmmo--;
@@ -670,6 +708,7 @@ function update(deltaTime) {
 
 	// 弾と一般兵の当たり判定
 	bullets.forEach((bullet, bIdx) => {
+		let bulletRemoved = false;
 		soldiers.forEach((soldier, sIdx) => {
 			if (
 				bullet.x < soldier.x + soldier.width &&
@@ -679,12 +718,18 @@ function update(deltaTime) {
 			) {
 				const soldierX = soldier.x;
 				const soldierY = soldier.y;
-				bullets.splice(bIdx, 1);
+				
+				// 貫通弾でなければ弾を削除
+				if (!bullet.piercing && !bulletRemoved) {
+					bullets.splice(bIdx, 1);
+					bulletRemoved = true;
+				}
+				
 				soldiers.splice(sIdx, 1);
-				score += 10;
+				score += 10 * (bullet.damage || 1);
 
-				// 一定確率でマガジンアイテムをドロップ（最大数未満の場合のみ）
-				if (remainingMagazines < MAX_MAGAZINES && Math.random() < 0.1) { // 10%の確率
+				// 一定確率でマガジンアイテムをドロップ（残りマガジン3以下の場合のみ）
+				if (remainingMagazines <= 3 && Math.random() < 0.05) { // 5%の確率
 					spawnMagazineItem(soldierX, soldierY);
 				}
 			}
@@ -769,8 +814,8 @@ function draw() {
 	}
 
 	// 弾
-	ctx.fillStyle = '#fff';
 	bullets.forEach(bullet => {
+		ctx.fillStyle = bullet.color || '#fff';
 		ctx.fillRect(bullet.x, bullet.y, bullet.width, bullet.height);
 	});
 
@@ -809,6 +854,12 @@ function draw() {
 	ctx.textBaseline = 'top';
 	const ammoText = isReloading ? 'リロード中...' : `弾: ${currentAmmo} / ${MAGAZINE_SIZE} 残りマガジン: ${remainingMagazines}`;
 	ctx.fillText(ammoText, 10, 10);
+	
+	// 弾薬タイプ表示
+	const ammoType = AMMO_TYPES[currentAmmoType];
+	ctx.fillStyle = ammoType.color;
+	ctx.fillText(`弾薬: ${ammoType.name}`, 10, 35);
+	ctx.fillStyle = '#fff';
 
 	// 弾薬警告表示
 	if (!gameOver && !isReloading) {
