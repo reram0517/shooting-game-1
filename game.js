@@ -223,6 +223,7 @@ if (reloadBtn) {
 
 // キャンバスタッチ操作（スワイプで移動、タップで射撃）
 let touchStartX = null;
+let touchStartY = null;
 canvas.addEventListener('touchstart', (e) => {
 	e.preventDefault();
 	if (gameOver) {
@@ -233,23 +234,29 @@ canvas.addEventListener('touchstart', (e) => {
 	}
 	if (player) {
 		touchStartX = e.touches[0].clientX;
+		touchStartY = e.touches[0].clientY;
 	}
 });
 
 canvas.addEventListener('touchmove', (e) => {
 	e.preventDefault();
-	if (touchStartX !== null && !gameOver && player) {
+	if (touchStartX !== null && touchStartY !== null && !gameOver && player) {
 		const touchX = e.touches[0].clientX;
+		const touchY = e.touches[0].clientY;
 		const rect = canvas.getBoundingClientRect();
 		const scaleX = canvas.width / rect.width;
+		const scaleY = canvas.height / rect.height;
 		const relativeX = (touchX - rect.left) * scaleX;
+		const relativeY = (touchY - rect.top) * scaleY;
 		player.x = relativeX - player.width / 2;
+		player.y = relativeY - player.height / 2;
 	}
 });
 
 canvas.addEventListener('touchend', (e) => {
 	e.preventDefault();
 	touchStartX = null;
+	touchStartY = null;
 });
 
 let bomberSoldiers = []; // 爆弾兵
