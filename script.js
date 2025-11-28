@@ -5,6 +5,10 @@ const backToTitleBtn = document.getElementById('backToTitleBtn');
 const restartBtn2 = document.getElementById('restartBtn2');
 const backToTitleBtn2 = document.getElementById('backToTitleBtn2');
 const gameOverScreen = document.getElementById('gameOverScreen');
+const pauseBtn = document.getElementById('pauseBtn');
+const pauseScreen = document.getElementById('pauseScreen');
+const resumeBtn = document.getElementById('resumeBtn');
+const pauseBackToTitleBtn = document.getElementById('pauseBackToTitleBtn');
 const controlsDiv = document.getElementById('controls');
 const startScreen = document.getElementById('startScreen');
 const startBtn = document.getElementById('startBtn');
@@ -21,6 +25,7 @@ console.log('playBtn:', playBtn);
 console.log('rulesBtn:', rulesBtn);
 
 let gameStarted = false;
+let isPaused = false; // ポーズ状態
 let currentDifficulty = 'normal'; // デフォルトは普通
 
 // 難易度設定
@@ -325,6 +330,8 @@ function initGame() {
 	restartBtn.style.display = 'none';
 	backToTitleBtn.style.display = 'none';
 	if (controlsDiv) controlsDiv.style.display = ''; // 操作ボタンを表示
+	if (pauseBtn) pauseBtn.style.display = 'block'; // ポーズボタンを表示
+	isPaused = false; // ポーズ状態をリセット
 	gameStarted = true;
 	if (startScreen) startScreen.style.display = 'none'; // スタート画面を非表示
 }
@@ -485,6 +492,7 @@ function showGameOverScreen() {
 	// 画面を表示
 	gameOverScreen.classList.add('show');
 	if (controlsDiv) controlsDiv.style.display = 'none';
+	if (pauseBtn) pauseBtn.style.display = 'none'; // ポーズボタンを非表示
 }
 
 restartBtn.addEventListener('click', () => {
@@ -542,6 +550,68 @@ backToTitleBtn2.addEventListener('touchend', (e) => {
 	if (difficultySelect) difficultySelect.style.display = 'none';
 	updateTitleStats(); // タイトル画面の記録を更新
 });
+
+// ポーズボタンのイベント
+if (pauseBtn) {
+	pauseBtn.addEventListener('click', () => {
+		if (!gameOver && gameStarted) {
+			isPaused = true;
+			pauseScreen.classList.add('show');
+		}
+	});
+	
+	pauseBtn.addEventListener('touchend', (e) => {
+		e.preventDefault();
+		if (!gameOver && gameStarted) {
+			isPaused = true;
+			pauseScreen.classList.add('show');
+		}
+	});
+}
+
+// 再開ボタンのイベント
+if (resumeBtn) {
+	resumeBtn.addEventListener('click', () => {
+		isPaused = false;
+		pauseScreen.classList.remove('show');
+		lastTime = performance.now(); // タイムを再設定
+	});
+	
+	resumeBtn.addEventListener('touchend', (e) => {
+		e.preventDefault();
+		isPaused = false;
+		pauseScreen.classList.remove('show');
+		lastTime = performance.now(); // タイムを再設定
+	});
+}
+
+// ポーズ画面からタイトルに戻るボタン
+if (pauseBackToTitleBtn) {
+	pauseBackToTitleBtn.addEventListener('click', () => {
+		isPaused = false;
+		pauseScreen.classList.remove('show');
+		startScreen.style.display = 'flex';
+		controlsDiv.style.display = 'none';
+		pauseBtn.style.display = 'none';
+		gameStarted = false;
+		if (mainMenu) mainMenu.style.display = 'block';
+		if (difficultySelect) difficultySelect.style.display = 'none';
+		updateTitleStats();
+	});
+	
+	pauseBackToTitleBtn.addEventListener('touchend', (e) => {
+		e.preventDefault();
+		isPaused = false;
+		pauseScreen.classList.remove('show');
+		startScreen.style.display = 'flex';
+		controlsDiv.style.display = 'none';
+		pauseBtn.style.display = 'none';
+		gameStarted = false;
+		if (mainMenu) mainMenu.style.display = 'block';
+		if (difficultySelect) difficultySelect.style.display = 'none';
+		updateTitleStats();
+	});
+}
 
 function spawnMagazineItem(x, y) {
 	magazineItems.push({ x, y, width: 30, height: 30, speed: 120 }); // ピクセル/秒
@@ -981,6 +1051,13 @@ function draw() {
 }
 
 function gameLoop(currentTime) {
+	// ポーズ中はゲームを進めない
+	if (isPaused) {
+		lastTime = currentTime; // ポーズ中もタイムを更新してデルタタイムのずれを防ぐ
+		requestAnimationFrame(gameLoop);
+		return;
+	}
+	
 	// デルタタイム計算（秒単位）
 	const deltaTime = (currentTime - lastTime) / 1000;
 	lastTime = currentTime;

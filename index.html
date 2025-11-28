@@ -173,6 +173,25 @@ h1 {
 #controls button:active {
 	background: rgba(0, 255, 255, 0.6);
 }
+#pauseBtn {
+	position: fixed;
+	top: 10px;
+	right: 10px;
+	z-index: 150;
+	width: 60px;
+	height: 60px;
+	font-size: 28px;
+	background: rgba(0, 0, 0, 0.6);
+	border: 2px solid #0ff;
+	color: #fff;
+	border-radius: 10px;
+	cursor: pointer;
+	display: none;
+	touch-action: manipulation;
+}
+#pauseBtn:active {
+	background: rgba(0, 255, 255, 0.4);
+}
 @media (max-width: 768px) {
 	#controls {
 		display: flex;
@@ -267,6 +286,55 @@ h1 {
 #backToTitleBtn2:active {
 	background: #777;
 }
+#pauseScreen {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: rgba(0, 0, 0, 0.9);
+	display: none;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	z-index: 300;
+	padding: 20px;
+	box-sizing: border-box;
+}
+#pauseScreen.show {
+	display: flex;
+}
+#pauseScreen h2 {
+	font-size: clamp(32px, 8vw, 48px);
+	color: #0ff;
+	margin-bottom: 30px;
+}
+#pauseScreen .button-group {
+	display: flex;
+	gap: 15px;
+	flex-wrap: wrap;
+	justify-content: center;
+}
+#resumeBtn, #pauseBackToTitleBtn {
+	font-size: 20px;
+	padding: 15px 35px;
+	background: #0ff;
+	color: #000;
+	border: none;
+	border-radius: 10px;
+	cursor: pointer;
+	font-weight: bold;
+}
+#pauseBackToTitleBtn {
+	background: #999;
+	color: #fff;
+}
+#resumeBtn:active {
+	background: #0aa;
+}
+#pauseBackToTitleBtn:active {
+	background: #777;
+}
 </style>
 </head>
 <body>
@@ -315,6 +383,14 @@ h1 {
 	<div class="button-group">
 		<button id="restartBtn2">もう一度プレイ</button>
 		<button id="backToTitleBtn2">タイトルに戻る</button>
+	</div>
+</div>
+<button id="pauseBtn">⏸</button>
+<div id="pauseScreen">
+	<h2>⏸ 一時停止</h2>
+	<div class="button-group">
+		<button id="resumeBtn">ゲームに戻る</button>
+		<button id="pauseBackToTitleBtn">タイトルに戻る</button>
 	</div>
 </div>
 <div id="controls">
