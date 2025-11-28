@@ -196,6 +196,12 @@ h1 {
 	#controls {
 		display: flex;
 	}
+	#movementControls {
+		display: block !important;
+	}
+	#movementControls button:active {
+		background: rgba(0, 255, 255, 0.6);
+	}
 }
 @media (max-height: 600px) {
 	#gameContainer {
@@ -398,6 +404,16 @@ h1 {
 <button id="ammoTypeBtn" style="width: 65px; height: 50px; font-size: 14px;">通常弾</button>
 <button id="shootBtn">&#x1F52B;</button>
 <button id="reloadBtn">&#x1F504;</button>
+</div>
+</div>
+<div id="movementControls" style="display: none; position: fixed; bottom: 100px; left: 15px; z-index: 100;">
+<div style="display: flex; flex-direction: column; gap: 8px; background: rgba(0, 0, 0, 0.5); padding: 8px; border-radius: 12px;">
+<button id="upBtn" style="width: 65px; height: 65px; font-size: 22px; background: rgba(0, 255, 255, 0.3); border: 2px solid #0ff; color: #fff; border-radius: 10px; touch-action: manipulation;">▲</button>
+<div style="display: flex; gap: 8px;">
+<button id="leftBtn" style="width: 65px; height: 65px; font-size: 22px; background: rgba(0, 255, 255, 0.3); border: 2px solid #0ff; color: #fff; border-radius: 10px; touch-action: manipulation;">◄</button>
+<button id="downBtn" style="width: 65px; height: 65px; font-size: 22px; background: rgba(0, 255, 255, 0.3); border: 2px solid #0ff; color: #fff; border-radius: 10px; touch-action: manipulation;">▼</button>
+<button id="rightBtn" style="width: 65px; height: 65px; font-size: 22px; background: rgba(0, 255, 255, 0.3); border: 2px solid #0ff; color: #fff; border-radius: 10px; touch-action: manipulation;">►</button>
+</div>
 </div>
 </div>
 <script src="script.js"></script>

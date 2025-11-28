@@ -10,6 +10,7 @@ const pauseScreen = document.getElementById('pauseScreen');
 const resumeBtn = document.getElementById('resumeBtn');
 const pauseBackToTitleBtn = document.getElementById('pauseBackToTitleBtn');
 const controlsDiv = document.getElementById('controls');
+const movementControls = document.getElementById('movementControls');
 const startScreen = document.getElementById('startScreen');
 const startBtn = document.getElementById('startBtn');
 const playBtn = document.getElementById('playBtn');
@@ -182,7 +183,7 @@ let currentAmmo, isReloading, reloadTimer;
 
 let keys = {};
 let shootCooldown = 0;
-let touchControls = { left: false, right: false, shoot: false };
+let touchControls = { left: false, right: false, up: false, down: false, shoot: false };
 
 // キーボード操作
 document.addEventListener('keydown', (e) => { keys[e.key] = true; });
@@ -246,6 +247,30 @@ if (reloadBtn) {
 		}
 	});
 }
+
+// 移動ボタンのイベントリスナー
+const leftBtn = document.getElementById('leftBtn');
+const rightBtn = document.getElementById('rightBtn');
+const upBtn = document.getElementById('upBtn');
+const downBtn = document.getElementById('downBtn');
+
+if (leftBtn) {
+	leftBtn.addEventListener('touchstart', (e) => { e.preventDefault(); touchControls.left = true; });
+	leftBtn.addEventListener('touchend', (e) => { e.preventDefault(); touchControls.left = false; });
+}
+if (rightBtn) {
+	rightBtn.addEventListener('touchstart', (e) => { e.preventDefault(); touchControls.right = true; });
+	rightBtn.addEventListener('touchend', (e) => { e.preventDefault(); touchControls.right = false; });
+}
+if (upBtn) {
+	upBtn.addEventListener('touchstart', (e) => { e.preventDefault(); touchControls.up = true; });
+	upBtn.addEventListener('touchend', (e) => { e.preventDefault(); touchControls.up = false; });
+}
+if (downBtn) {
+	downBtn.addEventListener('touchstart', (e) => { e.preventDefault(); touchControls.down = true; });
+	downBtn.addEventListener('touchend', (e) => { e.preventDefault(); touchControls.down = false; });
+}
+
 
 // キャンバスタッチ操作（スワイプで移動、タップで射撃）
 let touchStartX = null;
@@ -330,6 +355,7 @@ function initGame() {
 	restartBtn.style.display = 'none';
 	backToTitleBtn.style.display = 'none';
 	if (controlsDiv) controlsDiv.style.display = ''; // 操作ボタンを表示
+	if (movementControls) movementControls.style.display = ''; // 移動ボタンを表示
 	if (pauseBtn) pauseBtn.style.display = 'block'; // ポーズボタンを表示
 	isPaused = false; // ポーズ状態をリセット
 	gameStarted = true;
@@ -492,6 +518,7 @@ function showGameOverScreen() {
 	// 画面を表示
 	gameOverScreen.classList.add('show');
 	if (controlsDiv) controlsDiv.style.display = 'none';
+	if (movementControls) movementControls.style.display = 'none';
 	if (pauseBtn) pauseBtn.style.display = 'none'; // ポーズボタンを非表示
 }
 
@@ -519,6 +546,7 @@ restartBtn2.addEventListener('touchend', (e) => {
 backToTitleBtn.addEventListener('click', () => {
 	startScreen.style.display = 'flex';
 	controlsDiv.style.display = 'none';
+	if (movementControls) movementControls.style.display = 'none';
 	restartBtn.style.display = 'none';
 	backToTitleBtn.style.display = 'none';
 	gameStarted = false;
@@ -532,6 +560,7 @@ backToTitleBtn2.addEventListener('click', () => {
 	gameOverScreen.classList.remove('show');
 	startScreen.style.display = 'flex';
 	controlsDiv.style.display = 'none';
+	if (movementControls) movementControls.style.display = 'none';
 	gameStarted = false;
 	// メインメニューに戻る
 	if (mainMenu) mainMenu.style.display = 'block';
@@ -544,6 +573,7 @@ backToTitleBtn2.addEventListener('touchend', (e) => {
 	gameOverScreen.classList.remove('show');
 	startScreen.style.display = 'flex';
 	controlsDiv.style.display = 'none';
+	if (movementControls) movementControls.style.display = 'none';
 	gameStarted = false;
 	// メインメニューに戻る
 	if (mainMenu) mainMenu.style.display = 'block';
@@ -592,6 +622,7 @@ if (pauseBackToTitleBtn) {
 		pauseScreen.classList.remove('show');
 		startScreen.style.display = 'flex';
 		controlsDiv.style.display = 'none';
+		if (movementControls) movementControls.style.display = 'none';
 		pauseBtn.style.display = 'none';
 		gameStarted = false;
 		if (mainMenu) mainMenu.style.display = 'block';
@@ -605,6 +636,7 @@ if (pauseBackToTitleBtn) {
 		pauseScreen.classList.remove('show');
 		startScreen.style.display = 'flex';
 		controlsDiv.style.display = 'none';
+		if (movementControls) movementControls.style.display = 'none';
 		pauseBtn.style.display = 'none';
 		gameStarted = false;
 		if (mainMenu) mainMenu.style.display = 'block';
@@ -765,9 +797,11 @@ function update(deltaTime) {
 	});
 	if (gameOver) return;
 	
-	// キーボードまたはタッチで左右移動
+	// キーボードまたはタッチで上下左右移動
     if(keys['ArrowLeft'] || touchControls.left) player.x -= player.speed * deltaTime;
     if(keys['ArrowRight'] || touchControls.right) player.x += player.speed * deltaTime;
+    if(keys['ArrowUp'] || touchControls.up) player.y -= player.speed * deltaTime;
+    if(keys['ArrowDown'] || touchControls.down) player.y += player.speed * deltaTime;
     
 	// キーボードまたはタッチで射撃
 	if(keys[' '] || touchControls.shoot) {
@@ -803,6 +837,7 @@ function update(deltaTime) {
 
 	// プレイヤーの範囲制限
 	player.x = Math.max(0, Math.min(canvas.width - player.width, player.x));
+	player.y = Math.max(0, Math.min(canvas.height - player.height, player.y));
 
 	// 弾の移動（デルタタイム適用）
 	bullets.forEach(bullet => bullet.y -= bullet.speed * deltaTime);
