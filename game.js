@@ -10,7 +10,6 @@ const pauseScreen = document.getElementById('pauseScreen');
 const resumeBtn = document.getElementById('resumeBtn');
 const pauseBackToTitleBtn = document.getElementById('pauseBackToTitleBtn');
 const controlsDiv = document.getElementById('controls');
-const movementControls = document.getElementById('movementControls');
 
 console.log('Game script loaded');
 
@@ -222,30 +221,6 @@ if (reloadBtn) {
 	});
 }
 
-// 移動ボタンのイベントリスナー
-const leftBtn = document.getElementById('leftBtn');
-const rightBtn = document.getElementById('rightBtn');
-const upBtn = document.getElementById('upBtn');
-const downBtn = document.getElementById('downBtn');
-
-if (leftBtn) {
-	leftBtn.addEventListener('touchstart', (e) => { e.preventDefault(); touchControls.left = true; });
-	leftBtn.addEventListener('touchend', (e) => { e.preventDefault(); touchControls.left = false; });
-}
-if (rightBtn) {
-	rightBtn.addEventListener('touchstart', (e) => { e.preventDefault(); touchControls.right = true; });
-	rightBtn.addEventListener('touchend', (e) => { e.preventDefault(); touchControls.right = false; });
-}
-if (upBtn) {
-	upBtn.addEventListener('touchstart', (e) => { e.preventDefault(); touchControls.up = true; });
-	upBtn.addEventListener('touchend', (e) => { e.preventDefault(); touchControls.up = false; });
-}
-if (downBtn) {
-	downBtn.addEventListener('touchstart', (e) => { e.preventDefault(); touchControls.down = true; });
-	downBtn.addEventListener('touchend', (e) => { e.preventDefault(); touchControls.down = false; });
-}
-
-
 // キャンバスタッチ操作（スワイプで移動、タップで射撃）
 let touchStartX = null;
 canvas.addEventListener('touchstart', (e) => {
@@ -329,7 +304,6 @@ function initGame() {
 	restartBtn.style.display = 'none';
 	backToTitleBtn.style.display = 'none';
 	if (controlsDiv) controlsDiv.style.display = ''; // 操作ボタンを表示
-	if (movementControls) movementControls.style.display = ''; // 移動ボタンを表示
 	if (pauseBtn) pauseBtn.style.display = 'block'; // ポーズボタンを表示
 	isPaused = false; // ポーズ状態をリセット
 	gameStarted = true;
@@ -401,7 +375,6 @@ function showGameOverScreen() {
 	// 画面を表示
 	gameOverScreen.classList.add('show');
 	if (controlsDiv) controlsDiv.style.display = 'none';
-	if (movementControls) movementControls.style.display = 'none';
 	if (pauseBtn) pauseBtn.style.display = 'none'; // ポーズボタンを非表示
 }
 
