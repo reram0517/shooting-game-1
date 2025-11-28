@@ -150,6 +150,7 @@ let isInvincible = false; // 無敵状態かどうか
 let invincibleTimer = 0; // 無敵時間の残り
 
 let player = null, bullets, soldiers, score, gameOver, soldierTimer; // 一般兵
+let explosions = []; // 爆発エフェクトの配列
 let specialItemTimer = 0; // 特殊アイテム用タイマー
 let lastSpecialItemScore = 0; // 最後に特殊アイテムが出た時のスコア
 let lastTime = 0; // デルタタイム計算用
@@ -303,6 +304,7 @@ function initGame() {
 	bullets = [];
 	soldiers = []; // 一般兵の配列
 	bomberSoldiers = []; // 爆弾兵の配列
+	explosions = []; // 爆発エフェクトをリセット
 	score = 0;
 	gameOver = false;
 	soldierTimer = 0; // 一般兵のスポーンタイマー
@@ -554,6 +556,18 @@ function spawnSpecialItem() {
 	specialItems.push({ x, y, width: 35, height: 35, speed: 150 }); // ピクセル/秒
 }
 
+// 爆発エフェクトを作成
+function createExplosion(x, y) {
+	explosions.push({
+		x: x,
+		y: y,
+		radius: 5,
+		maxRadius: 40,
+		life: 0.5, // 0.5秒間表示
+		maxLife: 0.5
+	});
+}
+
 function spawnSoldier() { // 一般兵をスポーン
 	let x,y = -40,tries = 0;
     do {
@@ -581,6 +595,13 @@ function update(deltaTime) {
 	// 特殊アイテムの移動（デルタタイム適用）
 	specialItems.forEach(item => item.y += item.speed * deltaTime);
 	specialItems = specialItems.filter(item => item.y < canvas.height);
+
+	// 爆発エフェクトの更新
+	explosions.forEach(explosion => {
+		explosion.life -= deltaTime;
+		explosion.radius = explosion.maxRadius * (1 - explosion.life / explosion.maxLife);
+	});
+	explosions = explosions.filter(explosion => explosion.life > 0);
 
 	// 無敵タイマーの更新
 	if (isInvincible) {
@@ -644,10 +665,23 @@ function update(deltaTime) {
 				bullet.y < bomber.y + bomber.height &&
 				bullet.y + bullet.height > bomber.y
 			) {
-				// 貫通弾でなければ弾を削除
-				if (!bullet.piercing && !bulletRemoved) {
+				// 貫通弾の場合、貫通回数をカウント
+				if (bullet.piercing) {
+					bullet.piercingCount = (bullet.piercingCount || 0) + 1;
+					// 貫通上限に達したら弾を削除
+					if (bullet.piercingCount >= bullet.maxPiercing && !bulletRemoved) {
+						bullets.splice(bIdx, 1);
+						bulletRemoved = true;
+					}
+				} else if (!bulletRemoved) {
+					// 貫通弾でなければ弾を削除
 					bullets.splice(bIdx, 1);
 					bulletRemoved = true;
+				}
+				
+				// 爆発弾なら爆発エフェクトを作成
+				if (bullet.explosive) {
+					createExplosion(bomber.x + bomber.width / 2, bomber.y + bomber.height / 2);
 				}
 				
 				bomberSoldiers.splice(bIdx2, 1);
@@ -680,7 +714,9 @@ function update(deltaTime) {
 				 damage: ammo.damage,
 				 piercing: ammo.piercing || false,
 				 explosive: ammo.explosive || false,
-				 type: currentAmmoType
+				 type: currentAmmoType,
+				 piercingCount: 0, // 貫通回数カウント
+				 maxPiercing: 2 // 最大貫通数
 							});
 				if (!isInvincible) { // 無敵中でなければ弾を消費
 					currentAmmo--;
@@ -719,10 +755,23 @@ function update(deltaTime) {
 				const soldierX = soldier.x;
 				const soldierY = soldier.y;
 				
-				// 貫通弾でなければ弾を削除
-				if (!bullet.piercing && !bulletRemoved) {
+				// 貫通弾の場合、貫通回数をカウント
+				if (bullet.piercing) {
+					bullet.piercingCount = (bullet.piercingCount || 0) + 1;
+					// 貫通上限に達したら弾を削除
+					if (bullet.piercingCount >= bullet.maxPiercing && !bulletRemoved) {
+						bullets.splice(bIdx, 1);
+						bulletRemoved = true;
+					}
+				} else if (!bulletRemoved) {
+					// 貫通弾でなければ弾を削除
 					bullets.splice(bIdx, 1);
 					bulletRemoved = true;
+				}
+				
+				// 爆発弾なら爆発エフェクトを作成
+				if (bullet.explosive) {
+					createExplosion(soldierX + soldier.width / 2, soldierY + soldier.height / 2);
 				}
 				
 				soldiers.splice(sIdx, 1);
@@ -817,6 +866,27 @@ function draw() {
 	bullets.forEach(bullet => {
 		ctx.fillStyle = bullet.color || '#fff';
 		ctx.fillRect(bullet.x, bullet.y, bullet.width, bullet.height);
+	});
+
+	// 爆発エフェクト
+	explosions.forEach(explosion => {
+		const alpha = explosion.life / explosion.maxLife;
+		ctx.save();
+		ctx.globalAlpha = alpha;
+		
+		// 外側の円（オレンジ）
+		ctx.fillStyle = '#ff8800';
+		ctx.beginPath();
+		ctx.arc(explosion.x, explosion.y, explosion.radius, 0, Math.PI * 2);
+		ctx.fill();
+		
+		// 内側の円（黄色）
+		ctx.fillStyle = '#ffff00';
+		ctx.beginPath();
+		ctx.arc(explosion.x, explosion.y, explosion.radius * 0.6, 0, Math.PI * 2);
+		ctx.fill();
+		
+		ctx.restore();
 	});
 
 	// 一般兵（赤い敵）
