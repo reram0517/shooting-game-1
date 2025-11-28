@@ -225,6 +225,7 @@ if (reloadBtn) {
 let touchStartX = null;
 let touchStartY = null;
 let isTouching = false;
+const TOUCH_OFFSET_Y = 80; // プレイヤーを指の位置より上に表示するオフセット
 
 canvas.addEventListener('touchstart', (e) => {
 	e.preventDefault();
@@ -243,9 +244,9 @@ canvas.addEventListener('touchstart', (e) => {
 		const relativeX = (touch.clientX - rect.left) * scaleX;
 		const relativeY = (touch.clientY - rect.top) * scaleY;
 		
-		// プレイヤーの中心をタッチ位置に合わせる
+		// プレイヤーの中心をタッチ位置より上に配置
 		player.x = relativeX - player.width / 2;
-		player.y = relativeY - player.height / 2;
+		player.y = relativeY - player.height / 2 - TOUCH_OFFSET_Y;
 		
 		touchStartX = touch.clientX;
 		touchStartY = touch.clientY;
@@ -262,9 +263,9 @@ canvas.addEventListener('touchmove', (e) => {
 		const relativeX = (touch.clientX - rect.left) * scaleX;
 		const relativeY = (touch.clientY - rect.top) * scaleY;
 		
-		// プレイヤーの中心をタッチ位置に合わせる
+		// プレイヤーの中心をタッチ位置より上に配置
 		player.x = relativeX - player.width / 2;
-		player.y = relativeY - player.height / 2;
+		player.y = relativeY - player.height / 2 - TOUCH_OFFSET_Y;
 		
 		touchStartX = touch.clientX;
 		touchStartY = touch.clientY;
